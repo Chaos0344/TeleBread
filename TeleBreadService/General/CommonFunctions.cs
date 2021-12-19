@@ -19,7 +19,7 @@ namespace TeleBreadService.General
             SqlConnection conn = new SqlConnection($"server={config["dbserver"]};" +
                                                    $"database=TeleBread;" +
                                                    $"uid={config["dbuser"]};" +
-                                                   $"pwd={config["dbpass"]}");
+                                                   $"pwd={config["dbpassword"]}");
             SqlCommand comm = new SqlCommand(query, conn);
             foreach (var c in columns)
             {
@@ -55,7 +55,7 @@ namespace TeleBreadService.General
             SqlConnection conn = new SqlConnection($"server={config["dbserver"]};" +
                                                    $"database=TeleBread;" +
                                                    $"uid={config["dbuser"]};" +
-                                                   $"pwd={config["dbpass"]}");
+                                                   $"pwd={config["dbpassword"]}");
             SqlCommand comm = new SqlCommand(query, conn);
             conn.Open();
             try { comm.ExecuteNonQuery(); }
@@ -77,7 +77,7 @@ namespace TeleBreadService.General
         {
             try
             {
-                DataTable dt = runQuery($"SELECT privateChat from chatUsers where userID = {userID}", new string[] { "privateChat" }, config);
+                DataTable dt = runQuery($"SELECT privateChat from Users where userID = {userID}", new string[] { "privateChat" }, config);
                 return long.Parse(dt.Rows[0]["privateChat"].ToString());
             } catch (Exception z)
             {
@@ -96,7 +96,7 @@ namespace TeleBreadService.General
         {
             try
             {
-                DataTable dt = runQuery($"SELECT groupChat from chatUsers where userID = {userID}", new string[] { "groupChat" }, config);
+                DataTable dt = runQuery($"SELECT groupChat from dbo.Users where userID = {userID}", new string[] { "groupChat" }, config);
                 if (dt.Rows.Count == 0)
                 {
                     return 0;
@@ -180,6 +180,59 @@ namespace TeleBreadService.General
             {
                 // Bad things happened.
                 new Service1().WriteToFile(z.ToString());
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Checks if the user is currently in the database
+        /// </summary>
+        /// <param name="userID"></param>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public bool userInDatabase(long userID, Dictionary<string, string> config)
+        {
+            DataTable dt = runQuery($"SELECT userID from dbo.Users where userID = {userID}", new string[] { "userID" }, config);
+            if (dt.Rows.Count > 0)
+            {
+                return true;
+            }
+            else return false;
+        }
+
+        /// <summary>
+        /// Returns true if user running command is currently in 'position'
+        /// </summary>
+        /// <param name="chatId"></param>
+        /// <param name="position"></param>
+        /// <param name="config"></param>
+        /// <returns></returns>
+        public bool checkPosition(long chatId, long userId, string position, Dictionary<string, string> config)
+        {
+            DataTable dt = runQuery($"SELECT userID " +
+                $"FROM dbo.Positions " +
+                $"WHERE groupChat = {chatId} " +
+                $"AND expirationDate > '{DateTime.Now}' " +
+                $"AND position = '{position}' " +
+                $"AND userID = {userId}", new string[] { "userId" }, config);
+
+            if (dt.Rows.Count < 1)
+            {
+                return false;
+            } else
+            {
+                return true;
+            }
+        }
+
+        public bool groupChatExists(long chatId, Dictionary<string, string> config)
+        {
+            DataTable dt = runQuery($"SELECT groupChat FROM dbo.GroupChats where groupChat = {chatId}", new string[] { "groupChat" }, config);
+            if (dt.Rows.Count > 0)
+            {
+                return true;
+            } else
+            {
                 return false;
             }
         }

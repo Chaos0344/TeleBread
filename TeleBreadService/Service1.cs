@@ -31,8 +31,8 @@ namespace TeleBreadService
         {
             InitializeComponent();
         }
-        private static string local = "/Users/blakeroetzel/Library/Mobile Documents/com~apple~CloudDocs/Dev/TeleBread/.local/";
-        //static string local = "C:/Dev/TeleBread/.local/config.conf";
+        //private static string local = "/Users/blakeroetzel/Library/Mobile Documents/com~apple~CloudDocs/Dev/TeleBread/.local/";
+        private string local = "C:/dev/TeleBread/.local/";
 
         private static Dictionary<string, string> config = new Dictionary<string, string>();
         private string Dbuser { get; set; }
@@ -99,12 +99,7 @@ namespace TeleBreadService
 
             if (update.Message!.Type == MessageType.Text)
             {
-
-                if (messageText.ToLower() == "/start")
-                {
-                    new Commands().start(botClient, update);
-                    return;
-                }
+                new RunCommand(botClient, update, config);
             }
         }
         
