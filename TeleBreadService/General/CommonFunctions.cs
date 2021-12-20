@@ -114,6 +114,19 @@ namespace TeleBreadService.General
             }
         }
 
+        public long getUserId(long groupChat, string username, Dictionary<string, string> config)
+        {
+            DataTable dt = runQuery($"SELECT userID " +
+                $"FROM dbo.Users " +
+                $"WHERE groupChat = {groupChat} " +
+                $"AND username = '{username}'", new string[] { "userID" }, config);
+            if (dt.Rows.Count < 1)
+            {
+                return 0;
+            }
+            return long.Parse(dt.Rows[0]["userID"].ToString());
+        }
+
         /// <summary>
         /// Checks if the chat in chatID is userID's group chat.
         /// </summary>
@@ -147,7 +160,7 @@ namespace TeleBreadService.General
         /// <param name="userID"></param>
         /// <param name="config"></param>
         /// <returns>A boolean stating whether or not the inventory update was successful.</returns>
-        public bool addToInventory(string item, int qty, long userID, Dictionary<string, string> config)
+        public int addToInventory(string item, int qty, long userID, Dictionary<string, string> config)
         {
             try
             {
@@ -168,19 +181,19 @@ namespace TeleBreadService.General
                 {
                     // Inventory doesn't exist. Add it.
                     writeQuery($"INSERT INTO dbo.Inventory (userID, itemID, quantity) VALUES ({userID}, {itemID}, {qty})", config);
-                    return true;
+                    return qty;
                 }
 
                 // Update the inventory to the new quantity
                 var add = q + qty;
                 writeQuery($"UPDATE dbo.Inventory set quantity = {add} WHERE userID = {userID} and itemID = {itemID}", config);
-                return true;
+                return add;
             }
             catch (Exception z)
             {
                 // Bad things happened.
                 new Service1().WriteToFile(z.ToString());
-                return false;
+                return 0;
             }
         }
 

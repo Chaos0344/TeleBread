@@ -35,8 +35,18 @@ namespace TeleBreadService
                 }
             }
 
-            // Cab be used in Group Chats by anyone
-            if (cf.getGroupChat(userId, config) == chatId && messageText.ToLower().Contains("/inventory"))
+            // Can be used in group chat by Admins
+            if (cf.checkPosition(cf.getGroupChat(userId, config), userId, "Admin", config) && cf.getGroupChat(userId, config) == chatId)
+            {
+                if (messageText.ToLower().Contains("/test"))
+                {
+                    new General.Bread().bread(botClient, e, chatId, config);
+                    return;
+                }
+            }
+
+                // Cab be used in Group Chats by anyone
+                if (cf.getGroupChat(userId, config) == chatId && messageText.ToLower().Contains("/inventory"))
             {
                 c.inventory(botClient, e, config);
                 return;
