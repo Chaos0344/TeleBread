@@ -151,6 +151,18 @@ namespace TeleBreadService.General
             DataTable dt = runQuery($"SELECT Status from dbo.Services where ServiceName = '{serviceName}'", new string[] { "Status" }, config);
             return Int32.Parse(dt.Rows[0]["Status"].ToString());
         }
+
+        public int checkInventory(string item, long userID, Dictionary<string, string> config)
+        {
+            try
+            {
+                
+            } 
+            catch (Exception e)
+            {
+                new Service1().WriteToFile(e.ToString());
+            }
+        }
         
         /// <summary>
         /// Adds qty of item to userID's inventory.

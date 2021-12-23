@@ -57,6 +57,8 @@ namespace TeleBreadService.General
             }
             string firstName = dt.Rows[0]["FirstName"].ToString();
 
+
+
             int newBread = new General.CommonFunctions().addToInventory("Bread", 1, userID, config);
             int remove = e.Message.Entities[1].Length + e.Message.Entities[1].Offset;
             string text = e.Message.Text.Substring(remove, e.Message.Text.Length-remove).Trim();
