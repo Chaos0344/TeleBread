@@ -31,8 +31,8 @@ namespace TeleBreadService
         {
             InitializeComponent();
         }
-        //private static string local = "/Users/blakeroetzel/Library/Mobile Documents/com~apple~CloudDocs/Dev/TeleBread/.local/";
-        private string local = "C:/dev/TeleBread/.local/";
+        private static string local = "/Users/blakeroetzel/Documents/Dev/TeleBreadService/.local/";
+        //private string local = "C:/dev/TeleBread/.local/";
 
         private static Dictionary<string, string> config = new Dictionary<string, string>();
         private string Dbuser { get; set; }

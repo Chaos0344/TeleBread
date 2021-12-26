@@ -73,6 +73,7 @@
   <ItemGroup>
     <Compile Include="General\Bread.cs" />
     <Compile Include="General\CommonFunctions.cs" />
+    <Compile Include="General\Payroll.cs" />
     <Compile Include="Objects\OrbPredictions.cs" />
     <Compile Include="ProjectInstaller.cs">
       <SubType>Component</SubType>

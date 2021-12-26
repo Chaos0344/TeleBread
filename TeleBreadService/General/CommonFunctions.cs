@@ -146,9 +146,12 @@ namespace TeleBreadService.General
         /// <param name="serviceName">The name of the service to check.</param>
         /// <param name="config">The config dictionary with server info.</param>
         /// <returns>An integer representing the current status/value of the checked service.</returns>
-        public int serviceStatus(string serviceName, Dictionary<string, string> config)
+        public int serviceStatus(string serviceName, long chatID, Dictionary<string, string> config)
         {
-            DataTable dt = runQuery($"SELECT Status from dbo.Services where ServiceName = '{serviceName}'", new string[] { "Status" }, config);
+            DataTable dt = runQuery($"SELECT Status " +
+                                    $"FROM dbo.Services " +
+                                    $"WHERE Service = '{serviceName}' " +
+                                    $"AND groupChat = {chatID}", new string[] { "Status" }, config);
             return Int32.Parse(dt.Rows[0]["Status"].ToString());
         }
 
@@ -156,11 +159,22 @@ namespace TeleBreadService.General
         {
             try
             {
-                
+                DataTable dt =
+                    runQuery($"SELECT Quantity " +
+                        $"FROM dbo.Inventory " +
+                        $"JOIN dbo.Items on Inventory.ItemID = Items.ItemID " +
+                        $"WHERE Items.ItemName = '{item}' " +
+                        $"AND Inventory.UserID = {userID}", new string[] {"Quantity"}, config);
+                if (dt.Rows.Count < 1)
+                {
+                    return 0;
+                }
+                return Int32.Parse(dt.Rows[0]["Quantity"].ToString());
             } 
             catch (Exception e)
             {
                 new Service1().WriteToFile(e.ToString());
+                return 0;
             }
         }
         
@@ -237,7 +251,7 @@ namespace TeleBreadService.General
             DataTable dt = runQuery($"SELECT userID " +
                 $"FROM dbo.Positions " +
                 $"WHERE groupChat = {chatId} " +
-                $"AND expirationDate > '{DateTime.Now}' " +
+                $"AND (expirationDate > '{DateTime.Now}' OR expirationDate is NULL) " +
                 $"AND position = '{position}' " +
                 $"AND userID = {userId}", new string[] { "userId" }, config);
 
@@ -260,6 +274,23 @@ namespace TeleBreadService.General
             {
                 return false;
             }
+        }
+
+        public int getTimesheet(long userID, long chatID, Dictionary<string, string> config)
+        {
+            DataTable dt =
+                runQuery($"SELECT messages " +
+                         $"FROM dbo.Timesheet " +
+                         $"WHERE userID = {userID} " +
+                         $"AND groupChat = {chatID}", new string[] {"messages"}, config);
+            if (dt.Rows.Count < 1)
+            {
+                writeQuery($"INSERT INTO dbo.Timesheet (userID, messages, groupChat) " +
+                           $"VALUES ({userID}, 0, {chatID})", config);
+                return 0;
+            }
+
+            return Int32.Parse(dt.Rows[0]["messages"].ToString());
         }
 
         public CommonFunctions()

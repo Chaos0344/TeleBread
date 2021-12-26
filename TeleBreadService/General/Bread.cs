@@ -30,7 +30,7 @@ namespace TeleBreadService.General
             if (e.Message.Entities[1].Type == MessageEntityType.Mention && e.Message.Entities[1].User is null)
             {
                 // User has username
-                userID = new General.CommonFunctions().getUserId(groupChat, e.Message.Text.Split(' ')[1].Replace("@", ""), config);
+                userID = new CommonFunctions().getUserId(groupChat, e.Message.Text.Split(' ')[1].Replace("@", ""), config);
             } else
             {
                 userID = e.Message.Entities[1].User.Id;
@@ -47,7 +47,7 @@ namespace TeleBreadService.General
                 return;
             }
 
-            DataTable dt = new General.CommonFunctions().runQuery("SELECT FirstName FROM dbo.Users WHERE " +
+            DataTable dt = new CommonFunctions().runQuery("SELECT FirstName FROM dbo.Users WHERE " +
                 $"userID = {userID}", new string[] { "FirstName" }, config);
             if (dt.Rows.Count < 1)
             {
@@ -57,9 +57,14 @@ namespace TeleBreadService.General
             }
             string firstName = dt.Rows[0]["FirstName"].ToString();
 
+            if (new CommonFunctions().checkInventory("Bread", e.Message.From.Id, config) < 1)
+            {
+                botClient.SendTextMessageAsync(chatId, "You do not have any bread to give!");
+                return;
+            }
 
-
-            int newBread = new General.CommonFunctions().addToInventory("Bread", 1, userID, config);
+            _ = new CommonFunctions().addToInventory("Bread", -1, e.Message.From.Id, config);
+            int newBread = new CommonFunctions().addToInventory("Bread", 1, userID, config);
             int remove = e.Message.Entities[1].Length + e.Message.Entities[1].Offset;
             string text = e.Message.Text.Substring(remove, e.Message.Text.Length-remove).Trim();
             if (text == "")

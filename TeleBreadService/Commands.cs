@@ -16,6 +16,7 @@ using Telegram.Bot.Requests;
 using Telegram.Bot.Types.ReplyMarkups;
 using System.Data;
 using System.Threading.Tasks;
+using TeleBreadService.General;
 
 namespace TeleBreadService
 {
@@ -65,6 +66,7 @@ namespace TeleBreadService
 
         /// <summary>
         /// Adds user to database if doesn't exist, and updates group chat if user already exists.
+        /// ALSO checks if GroupChat exists in the DB yet.
         /// </summary>
         /// <param name="botClient"></param>
         /// <param name="e"></param>
@@ -75,7 +77,11 @@ namespace TeleBreadService
 
             if (!c.groupChatExists(e.Message.Chat.Id, config))
             {
-                c.writeQuery($"INSERT INTO dbo.GroupChats (groupChat, dateAdded) VALUES ({e.Message.Chat.Id}, '{DateTime.Now}')", config);
+                c.writeQuery($"INSERT INTO dbo.GroupChats (groupChat, dateAdded) " +
+                             $"VALUES ({e.Message.Chat.Id}, '{DateTime.Now}')", config);
+                c.writeQuery($"INSERT INTO dbo.Services (Service, groupChat, Status) " +
+                             $"VALUES ('ItemChance', {e.Message.Chat.Id}, 1000)", config);
+                c.addToInventory("Bread", 5, e.Message.From.Id, config);
             }
 
             if (c.userInDatabase(e.Message.From.Id, config))
@@ -121,18 +127,26 @@ namespace TeleBreadService
                 return;
             }
 
-            DataTable dt = c.runQuery("SELECT TOP 1 [Food Name] from dbo.food order by NEWID()", new string[] { "FoodName" }, config);
+            DataTable dt = c.runQuery("SELECT TOP 1 foodName from dbo.food order by NEWID()", new string[] { "FoodName" }, config);
             string foodName = dt.Rows[0]["FoodName"].ToString();
             await botClient.SendTextMessageAsync(e.Message.Chat.Id, $"{e.Message.From.FirstName} licked {foodName.ToLower()}.\nBon appétit!");
-            /*
+            
             if (foodName.ToLower().Contains("bread"))
             {
+                if (!new CommonFunctions().userInDatabase(e.Message.From.Id, config))
+                {
+                    await botClient.SendTextMessageAsync(chatId: e.Message.Chat,
+                        text:
+                        $"{e.Message.From.FirstName} found some secret bread!, but they aren't in the database yet.",
+                        disableNotification: true);
+                    return;
+                }
                 //TODO after addBread command is revised/created.
-                var newBread = addBread(e.Message.Chat.Id.ToString(), e.Message.From.Id.ToString());
+                var newBread = new CommonFunctions().addToInventory("Bread", 1, e.Message.From.Id, config);
                 await botClient.SendTextMessageAsync(chatId: e.Message.Chat,
                         text: $"{e.Message.From.FirstName} found some secret bread!\nNew bread balance: {newBread}.",
                         disableNotification: true);
-            }*/
+            }
         }
 
         /// <summary>
@@ -144,15 +158,15 @@ namespace TeleBreadService
         public async void maintenance(ITelegramBotClient botClient, Update e, Dictionary<string, string> config)
         {
             var c = new General.CommonFunctions();
-            int status = c.serviceStatus("Maintenance", config);
+            int status = c.serviceStatus("Maintenance", 0, config);
             if (status == 1)
             {
-                c.writeQuery("Update dbo.Services set Status = 0 where ServiceName = 'Maintenance'", config);
+                c.writeQuery("Update dbo.Services set Status = 0 where Service = 'Maintenance'", config);
                 botClient.SendTextMessageAsync(e.Message.Chat.Id, "Maintenance mode disabled.");
             }
             else
             {
-                c.writeQuery("Update dbo.Services set Status = 1 where ServiceName = 'Maintenance'", config);
+                c.writeQuery("Update dbo.Services set Status = 1 where Service = 'Maintenance'", config);
                 botClient.SendTextMessageAsync(e.Message.Chat.Id, "Maintenance mode enabled.");
             }
         }
