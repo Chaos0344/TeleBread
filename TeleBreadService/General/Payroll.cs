@@ -2,88 +2,94 @@ using System;
 using System.Collections.Generic;
 using Telegram.Bot;
 using System.Data;
+using System.Linq;
+using System.Timers;
 
 namespace TeleBreadService.General
 {
     public class Payroll
     {
-        private CommonFunctions cf = new CommonFunctions();
+        private Dictionary<string, string> Config { get; set; }
+        private CommonFunctions cf;
 
-        private int queryMembers(long chatId, Dictionary<string, string> config)
+        private int QueryMembers(long chatId)
         {
-            DataTable dt = cf.runQuery($"SELECT COUNT(userID) FROM dbo.Users where groupChat = {chatId}", 
-                new string[] {"userCount"}, config);
-            return Int32.Parse(dt.Rows[0]["userCount"].ToString());
+            var dt = cf.RunQuery($"SELECT COUNT(userID) FROM dbo.Users where groupChat = {chatId}", 
+                new [] {"userCount"});
+            return int.Parse(dt.Rows[0]["userCount"].ToString());
         }
 
-        private int totalMessages(long chatId, Dictionary<string, string> config)
+        private int TotalMessages(long chatId)
         {
-            DataTable dt = cf.runQuery($"SELECT SUM(messages) FROM Timesheet WHERE groupChat = {chatId}",
-                new string[] {"messages"},
-                config);
-            return Int32.Parse(dt.Rows[0]["messages"].ToString());
-        }
+            var dt = cf.RunQuery($"SELECT SUM(messages) FROM Timesheet WHERE groupChat = {chatId}",
+                new [] {"messages"});
 
-        private List<long> getUsers(long chatId, Dictionary<string, string> config)
-        {
-            DataTable dt = cf.runQuery($"SELECT userID FROM Timesheet WHERE groupChat = {chatId}",
-                new string[] {"userId"}, config);
-            List<long> users = new List<long>();
-            foreach (DataRow row in dt.Rows)
+            try
             {
-                users.Add(long.Parse(row["userId"].ToString()));
+                return int.Parse(dt.Rows[0]["messages"].ToString());
             }
-
-            return users;
-        }
-
-        private int getActivity(long chatId, long userId, Dictionary<string, string> config)
-        {
-            DataTable dt = cf.runQuery($"SELECT messages " +
-                                       $"FROM Timesheet " +
-                                       $"WHERE userID = {userId} " +
-                                       $"AND groupChat = {chatId}",
-                new string[] {"messages"}, config);
-            return Int32.Parse(dt.Rows[0]["messages"].ToString());
-        }
-
-        private List<long> getChats(Dictionary<string, string> config)
-        {
-            DataTable chts = cf.runQuery("SELECT groupChat FROM GroupChats",
-                new string[] {"groupChat"}, config);
-            List<long> chats = new List<long>();
-            foreach (DataRow row in chts.Rows)
+            catch (Exception)
             {
-                chats.Add(long.Parse(row["groupChat"].ToString()));
+                return 0;
             }
-
-            return chats;
         }
 
-        public Payroll(ITelegramBotClient botClient, Dictionary<string, string> config)
+        private List<long> GetUsers(long chatId)
         {
-            var chats = getChats(config);
-            foreach (long chat in chats)
+            var dt = cf.RunQuery($"SELECT userID FROM Timesheet WHERE groupChat = {chatId}",
+                new [] {"userId"});
+
+            return (from DataRow row in dt.Rows select long.Parse(row["userId"].ToString())).ToList();
+        }
+
+        private int GetActivity(long chatId, long userId)
+        {
+            var dt = cf.RunQuery($"SELECT messages " +
+                                 $"FROM Timesheet " +
+                                 $"WHERE userID = {userId} " +
+                                 $"AND groupChat = {chatId}",
+                new [] {"messages"});
+            return int.Parse(dt.Rows[0]["messages"].ToString());
+        }
+
+        private List<long> GetChats()
+        {
+            var chats = cf.RunQuery("SELECT groupChat FROM GroupChats",
+                new [] {"groupChat"});
+
+            return (from DataRow row in chats.Rows select long.Parse(row["groupChat"].ToString())).ToList();
+        }
+
+        public Payroll(ITelegramBotClient botClient, Dictionary<string, string> c, Timer payDay)
+        {
+            Config = c;
+            cf = new CommonFunctions(Config);
+            var chats = GetChats();
+            foreach (var chat in chats)
             {
                 if (chat == 0)
                 {
                     continue;
                 }
-                var users = getUsers(chat, config);
-                int mems = queryMembers(chat, config);
-                int budget = mems * 5;
-                int totalMsgs = totalMessages(chat, config);
-                foreach (long user in users)
+                var users = GetUsers(chat);
+                var members = QueryMembers(chat);
+                var budget = members * 5;
+                var totalMessages = TotalMessages(chat);
+                if (totalMessages == 0)
                 {
-                    int act = getActivity(chat, user, config);
-                    int pct = (Int32)Math.Ceiling(((double)act / (double)totalMsgs) * 100);
-                    int pay = (Int32)Math.Ceiling((double)budget * ((double)pct / 100));
-                    cf.addToInventory("Bread", pay, user, config);
-                    long prvt = cf.getPrivateChat(user, config);
-                    if (prvt != 0)
+                    continue;
+                }
+                foreach (var user in users)
+                {
+                    var act = GetActivity(chat, user);
+                    var pct = (int)Math.Round(act / (double)totalMessages * 100);
+                    var pay = (int)Math.Round(budget * (double)pct / 100);
+                    cf.AddToInventory("Bread", pay, user);
+                    var pvt = cf.GetPrivateChat(user);
+                    if (pvt != 0)
                     {
-                        botClient.SendTextMessageAsync(prvt,
-                            $"You sent {act} messages out of {totalMsgs} and received {pct}% of the pot. " +
+                        botClient.SendTextMessageAsync(pvt,
+                            $"You sent {act} messages out of {totalMessages} and received {pct}% of the pot. " +
                             $"You have received {pay} Bread.");
                     }
                 }
@@ -91,8 +97,14 @@ namespace TeleBreadService.General
                 botClient.SendTextMessageAsync(chat,
                     "It's Payday! If you have a private chat configured, you can check it for " +
                     "your pay details, otherwise use /inventory to see your new balance.");
-                cf.writeQuery("DELETE FROM dbo.Timesheet", config);
+                cf.WriteQuery("DELETE FROM dbo.Timesheet");
             }
+
+            payDay.Enabled = false;
+            payDay.Interval =
+                (DateTime.Parse(DateTime.Now.AddDays(7).ToString("MM/dd/yyyy")+" 06:00:00 AM") - DateTime.Now)
+                .TotalMilliseconds;
+            payDay.Enabled = true;
         }
     }
 }

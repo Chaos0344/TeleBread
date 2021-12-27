@@ -6,20 +6,21 @@ namespace TeleBreadService.General
 {
     public class CommonFunctions
     {
+        private Dictionary<string, string> Config { get; set; }
+
         /// <summary>
         /// Runs a query against the database referenced in the passed config dictionary
         /// </summary>
         /// <param name="query">String containing the query that is passed directly to the database.</param>
         /// <param name="columns">String array containing the columns to be returned (Selected).</param>
-        /// <param name="config">The config dictionary with server info.</param>
         /// <returns>DataTable containing results of the query, to be parsed as needed.</returns>
-        public DataTable runQuery(string query, string[] columns, Dictionary<string, string> config)
+        public DataTable RunQuery(string query, string[] columns)
         {
             DataTable dt = new DataTable();
-            SqlConnection conn = new SqlConnection($"server={config["dbserver"]};" +
+            SqlConnection conn = new SqlConnection($"server={Config["dbserver"]};" +
                                                    $"database=TeleBread;" +
-                                                   $"uid={config["dbuser"]};" +
-                                                   $"pwd={config["dbpassword"]}");
+                                                   $"uid={Config["dbuser"]};" +
+                                                   $"pwd={Config["dbpassword"]}");
             SqlCommand comm = new SqlCommand(query, conn);
             foreach (var c in columns)
             {
@@ -44,18 +45,17 @@ namespace TeleBreadService.General
             conn.Close();
             return dt;
         }
-        
+
         /// <summary>
         /// Writes records into the database.
         /// </summary>
         /// <param name="query">String containing the update/insert query.</param>
-        /// <param name="config">The config dictionary with server info.</param>
-        public void writeQuery(string query, Dictionary<string, string> config)
+        public void WriteQuery(string query)
         {
-            SqlConnection conn = new SqlConnection($"server={config["dbserver"]};" +
+            SqlConnection conn = new SqlConnection($"server={Config["dbserver"]};" +
                                                    $"database=TeleBread;" +
-                                                   $"uid={config["dbuser"]};" +
-                                                   $"pwd={config["dbpassword"]}");
+                                                   $"uid={Config["dbuser"]};" +
+                                                   $"pwd={Config["dbpassword"]}");
             SqlCommand comm = new SqlCommand(query, conn);
             conn.Open();
             try { comm.ExecuteNonQuery(); }
@@ -65,21 +65,20 @@ namespace TeleBreadService.General
             }
             conn.Close();
         }
-        
+
         /// <summary>
         /// Queries the private chat ID from the database for the specified user.
         /// If the user does not exist, this will return 0.
         /// </summary>
-        /// <param name="userID">userID to query.</param>
-        /// <param name="config">The config dictionary with server info.</param>
+        /// <param name="userId">userID to query.</param>
         /// <returns>A long representing the users privateChat ID.</returns>
-        public long getPrivateChat(long userID, Dictionary<string, string> config)
+        public long GetPrivateChat(long userId)
         {
             try
             {
-                DataTable dt = runQuery($"SELECT privateChat from Users where userID = {userID}", new string[] { "privateChat" }, config);
+                DataTable dt = RunQuery($"SELECT privateChat from Users where userID = {userId}", new[] { "privateChat" });
                 return long.Parse(dt.Rows[0]["privateChat"].ToString());
-            } catch (Exception z)
+            } catch (Exception)
             {
                 return 0;
             }
@@ -89,14 +88,13 @@ namespace TeleBreadService.General
         /// Queries the group chat ID from the database for the specified user.
         /// If the user does not exist, this will return 0.
         /// </summary>
-        /// <param name="userID">userID to query.</param>
-        /// <param name="config">The config dictionary with server info.</param>
+        /// <param name="userId">userID to query.</param>
         /// <returns>A long representing the users groupChat ID.</returns>
-        public long getGroupChat(long userID, Dictionary<string, string> config)
+        public long GetGroupChat(long userId)
         {
             try
             {
-                DataTable dt = runQuery($"SELECT groupChat from dbo.Users where userID = {userID}", new string[] { "groupChat" }, config);
+                DataTable dt = RunQuery($"SELECT groupChat from dbo.Users where userID = {userId}", new[] { "groupChat" });
                 if (dt.Rows.Count == 0)
                 {
                     return 0;
@@ -108,18 +106,18 @@ namespace TeleBreadService.General
                 {
                     return long.Parse(dt.Rows[0]["groupChat"].ToString());
                 }
-            } catch (Exception z)
+            } catch (Exception)
             {
                 return 0;
             }
         }
 
-        public long getUserId(long groupChat, string username, Dictionary<string, string> config)
+        public long GetUserId(long groupChat, string username)
         {
-            DataTable dt = runQuery($"SELECT userID " +
+            DataTable dt = RunQuery($"SELECT userID " +
                 $"FROM dbo.Users " +
                 $"WHERE groupChat = {groupChat} " +
-                $"AND username = '{username}'", new string[] { "userID" }, config);
+                $"AND username = '{username}'", new [] { "userID" });
             if (dt.Rows.Count < 1)
             {
                 return 0;
@@ -130,41 +128,40 @@ namespace TeleBreadService.General
         /// <summary>
         /// Checks if the chat in chatID is userID's group chat.
         /// </summary>
-        /// <param name="userID">User to check.</param>
-        /// <param name="chatID">Chat to check.</param>
-        /// <param name="config">The config dictionary with server info.</param>
+        /// <param name="userId">User to check.</param>
+        /// <param name="chatId">Chat to check.</param>
         /// <returns>A boolean stating whether or not the chatID provided is the userID's group chat.</returns>
-        public bool isGroupChat(long userID, long chatID, Dictionary<string, string> config)
+        public bool IsGroupChat(long userId, long chatId)
         {
-            long groupChat = getGroupChat(userID, config);
-            return groupChat == chatID;
+            long groupChat = GetGroupChat(userId);
+            return groupChat == chatId;
         }
 
         /// <summary>
         /// Queries the database for the status/value of a service.
         /// </summary>
         /// <param name="serviceName">The name of the service to check.</param>
-        /// <param name="config">The config dictionary with server info.</param>
+        /// <param name="chatId">Chat ID to check</param>
         /// <returns>An integer representing the current status/value of the checked service.</returns>
-        public int serviceStatus(string serviceName, long chatID, Dictionary<string, string> config)
+        public int ServiceStatus(string serviceName, long chatId)
         {
-            DataTable dt = runQuery($"SELECT Status " +
+            DataTable dt = RunQuery($"SELECT Status " +
                                     $"FROM dbo.Services " +
                                     $"WHERE Service = '{serviceName}' " +
-                                    $"AND groupChat = {chatID}", new string[] { "Status" }, config);
+                                    $"AND groupChat = {chatId}", new[] { "Status" });
             return Int32.Parse(dt.Rows[0]["Status"].ToString());
         }
 
-        public int checkInventory(string item, long userID, Dictionary<string, string> config)
+        public int CheckInventory(string item, long userId)
         {
             try
             {
                 DataTable dt =
-                    runQuery($"SELECT Quantity " +
+                    RunQuery($"SELECT Quantity " +
                         $"FROM dbo.Inventory " +
                         $"JOIN dbo.Items on Inventory.ItemID = Items.ItemID " +
                         $"WHERE Items.ItemName = '{item}' " +
-                        $"AND Inventory.UserID = {userID}", new string[] {"Quantity"}, config);
+                        $"AND Inventory.UserID = {userId}", new[] {"Quantity"});
                 if (dt.Rows.Count < 1)
                 {
                     return 0;
@@ -177,27 +174,26 @@ namespace TeleBreadService.General
                 return 0;
             }
         }
-        
+
         /// <summary>
         /// Adds qty of item to userID's inventory.
         /// </summary>
         /// <param name="item"></param>
         /// <param name="qty"></param>
-        /// <param name="userID"></param>
-        /// <param name="config"></param>
+        /// <param name="userId"></param>
         /// <returns>A boolean stating whether or not the inventory update was successful.</returns>
-        public int addToInventory(string item, int qty, long userID, Dictionary<string, string> config)
+        public int AddToInventory(string item, int qty, long userId)
         {
             try
             {
                 int q = 0;
 
                 // Get Item ID
-                var Items = runQuery($"SELECT itemID FROM dbo.Items where itemName = '{item}'", new string[] { "itemID" }, config);
-                var itemID = Items.Rows[0]["itemID"];
+                var items = RunQuery($"SELECT itemID FROM dbo.Items where itemName = '{item}'", new[] { "itemID" });
+                var itemId = items.Rows[0]["itemID"];
 
                 // Get Current Inventory
-                var inv = runQuery($"SELECT quantity FROM dbo.Inventory WHERE userID = {userID} and itemID = {itemID}", new string[] { "quantity" }, config);
+                var inv = RunQuery($"SELECT quantity FROM dbo.Inventory WHERE userID = {userId} and itemID = {itemId}", new[] { "quantity" });
                 if (inv.Rows.Count != 0)
                 {
                     // Inventory exists, get the number
@@ -206,13 +202,13 @@ namespace TeleBreadService.General
                 else
                 {
                     // Inventory doesn't exist. Add it.
-                    writeQuery($"INSERT INTO dbo.Inventory (userID, itemID, quantity) VALUES ({userID}, {itemID}, {qty})", config);
+                    WriteQuery($"INSERT INTO dbo.Inventory (userID, itemID, quantity) VALUES ({userId}, {itemId}, {qty})");
                     return qty;
                 }
 
                 // Update the inventory to the new quantity
                 var add = q + qty;
-                writeQuery($"UPDATE dbo.Inventory set quantity = {add} WHERE userID = {userID} and itemID = {itemID}", config);
+                WriteQuery($"UPDATE dbo.Inventory set quantity = {add} WHERE userID = {userId} and itemID = {itemId}");
                 return add;
             }
             catch (Exception z)
@@ -226,12 +222,11 @@ namespace TeleBreadService.General
         /// <summary>
         /// Checks if the user is currently in the database
         /// </summary>
-        /// <param name="userID"></param>
-        /// <param name="config"></param>
+        /// <param name="userId"></param>
         /// <returns></returns>
-        public bool userInDatabase(long userID, Dictionary<string, string> config)
+        public bool UserInDatabase(long userId)
         {
-            DataTable dt = runQuery($"SELECT userID from dbo.Users where userID = {userID}", new string[] { "userID" }, config);
+            DataTable dt = RunQuery($"SELECT userID from dbo.Users where userID = {userId}", new[] { "userID" });
             if (dt.Rows.Count > 0)
             {
                 return true;
@@ -243,17 +238,17 @@ namespace TeleBreadService.General
         /// Returns true if user running command is currently in 'position'
         /// </summary>
         /// <param name="chatId"></param>
+        /// <param name="userId">Specific User ID to check</param>
         /// <param name="position"></param>
-        /// <param name="config"></param>
         /// <returns></returns>
-        public bool checkPosition(long chatId, long userId, string position, Dictionary<string, string> config)
+        public bool CheckPosition(long chatId, long userId, string position)
         {
-            DataTable dt = runQuery($"SELECT userID " +
+            DataTable dt = RunQuery($"SELECT userID " +
                 $"FROM dbo.Positions " +
                 $"WHERE groupChat = {chatId} " +
                 $"AND (expirationDate > '{DateTime.Now}' OR expirationDate is NULL) " +
                 $"AND position = '{position}' " +
-                $"AND userID = {userId}", new string[] { "userId" }, config);
+                $"AND userID = {userId}", new[] { "userId" });
 
             if (dt.Rows.Count < 1)
             {
@@ -264,9 +259,9 @@ namespace TeleBreadService.General
             }
         }
 
-        public bool groupChatExists(long chatId, Dictionary<string, string> config)
+        public bool GroupChatExists(long chatId)
         {
-            DataTable dt = runQuery($"SELECT groupChat FROM dbo.GroupChats where groupChat = {chatId}", new string[] { "groupChat" }, config);
+            DataTable dt = RunQuery($"SELECT groupChat FROM dbo.GroupChats where groupChat = {chatId}", new[] { "groupChat" });
             if (dt.Rows.Count > 0)
             {
                 return true;
@@ -276,26 +271,26 @@ namespace TeleBreadService.General
             }
         }
 
-        public int getTimesheet(long userID, long chatID, Dictionary<string, string> config)
+        public int GetTimesheet(long userId, long chatId)
         {
             DataTable dt =
-                runQuery($"SELECT messages " +
+                RunQuery($"SELECT messages " +
                          $"FROM dbo.Timesheet " +
-                         $"WHERE userID = {userID} " +
-                         $"AND groupChat = {chatID}", new string[] {"messages"}, config);
+                         $"WHERE userID = {userId} " +
+                         $"AND groupChat = {chatId}", new[] {"messages"});
             if (dt.Rows.Count < 1)
             {
-                writeQuery($"INSERT INTO dbo.Timesheet (userID, messages, groupChat) " +
-                           $"VALUES ({userID}, 0, {chatID})", config);
+                WriteQuery($"INSERT INTO dbo.Timesheet (userID, messages, groupChat) " +
+                           $"VALUES ({userId}, 0, {chatId})");
                 return 0;
             }
 
             return Int32.Parse(dt.Rows[0]["messages"].ToString());
         }
 
-        public CommonFunctions()
+        public CommonFunctions(Dictionary<string, string> c)
         {
-            
+            Config = c;
         }
     }
 }

@@ -1,29 +1,18 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
-using System.Linq;
 using Telegram.Bot;
-using Telegram.Bot.Args;
 using Telegram.Bot.Types;
-using System.Data.SqlClient;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using Newtonsoft.Json;
-using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.InputFiles;
-using System.Timers;
-using Telegram.Bot.Requests;
-using Telegram.Bot.Types.ReplyMarkups;
 using System.Data;
-using System.Threading.Tasks;
-using TeleBreadService.General;
 
 namespace TeleBreadService
 {
     public class Commands
     {
-        public Commands()
+        private Dictionary<string, string> Config { get; set; }
+
+        public Commands(Dictionary<string, string> c)
         {
+            Config = c;
         }
 
         /// <summary>
@@ -31,7 +20,7 @@ namespace TeleBreadService
         /// </summary>
         /// <param name="botClient"></param>
         /// <param name="e"></param>
-        public async void start(ITelegramBotClient botClient, Update e)
+        public static async void Start(ITelegramBotClient botClient, Update e)
         {
             await botClient.SendTextMessageAsync(e.Message.Chat.Id,
                 "Hello! TeleBread is a bot primarily made for goofing around with friends in a group chat!\n" +
@@ -46,20 +35,19 @@ namespace TeleBreadService
         /// </summary>
         /// <param name="botClient"></param>
         /// <param name="e"></param>
-        /// <param name="config"></param>
-        public async void privateChat(ITelegramBotClient botClient, Update e, Dictionary<string, string> config)
+        public async void PrivateChat(ITelegramBotClient botClient, Update e)
         {
-            var c = new General.CommonFunctions();
-            if (c.userInDatabase(e.Message.From.Id, config))
+            var c = new General.CommonFunctions(Config);
+            if (c.UserInDatabase(e.Message.From.Id))
             {
-                c.writeQuery($"Update dbo.Users set privateChat = {e.Message.Chat.Id} " +
-                    $"where userID = {e.Message.From.Id}", config);
+                c.WriteQuery($"Update dbo.Users set privateChat = {e.Message.Chat.Id} " +
+                    $"where userID = {e.Message.From.Id}");
                 await botClient.SendTextMessageAsync(e.Message.Chat.Id, "User has been updated.");
             } else
             {
-                c.writeQuery($"INSERT INTO dbo.Users (userID, username, FirstName, LastName, privateChat) " +
+                c.WriteQuery($"INSERT INTO dbo.Users (userID, username, FirstName, LastName, privateChat) " +
                     $"VALUES ({e.Message.From.Id}, '{e.Message.From.Username}', '{e.Message.From.FirstName}', " +
-                    $"'{e.Message.From.LastName}', {e.Message.Chat.Id})", config);
+                    $"'{e.Message.From.LastName}', {e.Message.Chat.Id})");
                 await botClient.SendTextMessageAsync(e.Message.Chat.Id, "User has been added to database.");
             }
         }
@@ -70,31 +58,30 @@ namespace TeleBreadService
         /// </summary>
         /// <param name="botClient"></param>
         /// <param name="e"></param>
-        /// <param name="config"></param>
-        public async void groupChat(ITelegramBotClient botClient, Update e, Dictionary<string, string> config)
+        public async void GroupChat(ITelegramBotClient botClient, Update e)
         {
-            var c = new General.CommonFunctions();
+            var c = new General.CommonFunctions(Config);
 
-            if (!c.groupChatExists(e.Message.Chat.Id, config))
+            if (!c.GroupChatExists(e.Message.Chat.Id))
             {
-                c.writeQuery($"INSERT INTO dbo.GroupChats (groupChat, dateAdded) " +
-                             $"VALUES ({e.Message.Chat.Id}, '{DateTime.Now}')", config);
-                c.writeQuery($"INSERT INTO dbo.Services (Service, groupChat, Status) " +
-                             $"VALUES ('ItemChance', {e.Message.Chat.Id}, 1000)", config);
-                c.addToInventory("Bread", 5, e.Message.From.Id, config);
+                c.WriteQuery($"INSERT INTO dbo.GroupChats (groupChat, dateAdded) " +
+                             $"VALUES ({e.Message.Chat.Id}, '{DateTime.Now}')");
+                c.WriteQuery($"INSERT INTO dbo.Services (Service, groupChat, Status) " +
+                             $"VALUES ('ItemChance', {e.Message.Chat.Id}, 1000)");
+                c.AddToInventory("Bread", 5, e.Message.From.Id);
             }
 
-            if (c.userInDatabase(e.Message.From.Id, config))
+            if (c.UserInDatabase(e.Message.From.Id))
             {
-                c.writeQuery($"Update dbo.Users set groupChat = {e.Message.Chat.Id} " +
-                    $"where userID = {e.Message.From.Id}", config);
+                c.WriteQuery($"Update dbo.Users set groupChat = {e.Message.Chat.Id} " +
+                    $"where userID = {e.Message.From.Id}");
                 await botClient.SendTextMessageAsync(e.Message.Chat.Id, "User has been updated.");
             }
             else
             {
-                c.writeQuery($"INSERT INTO dbo.Users (userID, username, FirstName, LastName, groupChat) " +
+                c.WriteQuery($"INSERT INTO dbo.Users (userID, username, FirstName, LastName, groupChat) " +
                     $"VALUES ({e.Message.From.Id}, '{e.Message.From.Username}', '{e.Message.From.FirstName}', " +
-                    $"'{e.Message.From.LastName}', {e.Message.Chat.Id})", config);
+                    $"'{e.Message.From.LastName}', {e.Message.Chat.Id})");
                 await botClient.SendTextMessageAsync(e.Message.Chat.Id, "User has been added to database.");
             }
         }
@@ -104,36 +91,35 @@ namespace TeleBreadService
         /// </summary>
         /// <param name="botClient"></param>
         /// <param name="e"></param>
-        /// <param name="config"></param>
-        public async void say(ITelegramBotClient botClient, Update e, Dictionary<string, string> config)
+        public async void Say(ITelegramBotClient botClient, Update e)
         {
-            var chatID = new General.CommonFunctions().getGroupChat(e.Message.From.Id, config);
-            await botClient.SendTextMessageAsync(chatID, e.Message.Text.ToString().Split('|')[1]);
+            var chatId = new General.CommonFunctions(Config).GetGroupChat(e.Message.From.Id);
+            await botClient.SendTextMessageAsync(chatId, e.Message.Text.Split('|')[1]);
         }
 
-        public async void boobs(ITelegramBotClient botClient, Update e)
+        public async void Boobs(ITelegramBotClient botClient, Update e)
         {
             await botClient.SendTextMessageAsync(chatId: e.Message.Chat, text: "Lol nice",
                     disableNotification: true);
         }
 
-        public async void lick(ITelegramBotClient botClient, Update e, Dictionary<string, string> config)
+        public async void Lick(ITelegramBotClient botClient, Update e)
         {
-            var c = new General.CommonFunctions();
+            var c = new General.CommonFunctions(Config);
 
-            if (c.getGroupChat(e.Message.From.Id, config) != e.Message.Chat.Id)
+            if (c.GetGroupChat(e.Message.From.Id) != e.Message.Chat.Id)
             {
                 await botClient.SendTextMessageAsync(e.Message.Chat.Id, "Lick cannot be performed outside of your group chat.");
                 return;
             }
 
-            DataTable dt = c.runQuery("SELECT TOP 1 foodName from dbo.food order by NEWID()", new string[] { "FoodName" }, config);
+            DataTable dt = c.RunQuery("SELECT TOP 1 foodName from dbo.food order by NEWID()", new[] { "FoodName" });
             string foodName = dt.Rows[0]["FoodName"].ToString();
             await botClient.SendTextMessageAsync(e.Message.Chat.Id, $"{e.Message.From.FirstName} licked {foodName.ToLower()}.\nBon appétit!");
             
             if (foodName.ToLower().Contains("bread"))
             {
-                if (!new CommonFunctions().userInDatabase(e.Message.From.Id, config))
+                if (!c.UserInDatabase(e.Message.From.Id))
                 {
                     await botClient.SendTextMessageAsync(chatId: e.Message.Chat,
                         text:
@@ -142,7 +128,7 @@ namespace TeleBreadService
                     return;
                 }
                 //TODO after addBread command is revised/created.
-                var newBread = new CommonFunctions().addToInventory("Bread", 1, e.Message.From.Id, config);
+                var newBread = c.AddToInventory("Bread", 1, e.Message.From.Id);
                 await botClient.SendTextMessageAsync(chatId: e.Message.Chat,
                         text: $"{e.Message.From.FirstName} found some secret bread!\nNew bread balance: {newBread}.",
                         disableNotification: true);
@@ -154,20 +140,19 @@ namespace TeleBreadService
         /// </summary>
         /// <param name="botClient"></param>
         /// <param name="e"></param>
-        /// <param name="config"></param>
-        public async void maintenance(ITelegramBotClient botClient, Update e, Dictionary<string, string> config)
+        public async void Maintenance(ITelegramBotClient botClient, Update e)
         {
-            var c = new General.CommonFunctions();
-            int status = c.serviceStatus("Maintenance", 0, config);
+            var c = new General.CommonFunctions(Config);
+            int status = c.ServiceStatus("Maintenance", 0);
             if (status == 1)
             {
-                c.writeQuery("Update dbo.Services set Status = 0 where Service = 'Maintenance'", config);
-                botClient.SendTextMessageAsync(e.Message.Chat.Id, "Maintenance mode disabled.");
+                c.WriteQuery("Update dbo.Services set Status = 0 where Service = 'Maintenance'");
+                await botClient.SendTextMessageAsync(e.Message.Chat.Id, "Maintenance mode disabled.");
             }
             else
             {
-                c.writeQuery("Update dbo.Services set Status = 1 where Service = 'Maintenance'", config);
-                botClient.SendTextMessageAsync(e.Message.Chat.Id, "Maintenance mode enabled.");
+                c.WriteQuery("Update dbo.Services set Status = 1 where Service = 'Maintenance'");
+                await botClient.SendTextMessageAsync(e.Message.Chat.Id, "Maintenance mode enabled.");
             }
         }
 
@@ -176,18 +161,17 @@ namespace TeleBreadService
         /// </summary>
         /// <param name="botClient"></param>
         /// <param name="e"></param>
-        /// <param name="config"></param>
-        public async void inventory(ITelegramBotClient botClient, Update e, Dictionary<string, string> config)
+        public async void Inventory(ITelegramBotClient botClient, Update e)
         {
-            long userID = e.Message.From.Id;
-            var c = new General.CommonFunctions();
+            long userId = e.Message.From.Id;
+            var c = new General.CommonFunctions(Config);
             if (e.Message.Text.ToLower() == "/inventory")
             {
-                DataTable dt = c.runQuery($"SELECT ItemName, Quantity " +
+                DataTable dt = c.RunQuery($"SELECT ItemName, Quantity " +
                     $"FROM dbo.Inventory " +
                     $"JOIN dbo.Items on Inventory.ItemID = Items.ItemID " +
-                    $"WHERE UserID = {userID}",
-                    new string[] { "ItemName", "Quantity" }, config);
+                    $"WHERE UserID = {userId}",
+                    new[] { "ItemName", "Quantity" });
                 var itemList = "You are holding:\n";
                 foreach (DataRow row in dt.Rows)
                 {
@@ -201,16 +185,15 @@ namespace TeleBreadService
             {
                 // Get the description of an item in their inventory.
                 var itemName = e.Message.Text.ToLower().Replace("/inventory ", "").Trim();
-                DataTable dt = c.runQuery($"SELECT Items.ItemDescription " +
+                DataTable dt = c.RunQuery($"SELECT Items.ItemDescription " +
                     $"FROM dbo.inventory " +
                     $"JOIN dbo.Items on Inventory.ItemID = Items.ItemID " +
-                    $"WHERE UserID = {userID} " +
+                    $"WHERE UserID = {userId} " +
                     $"AND ItemName = '{itemName}' " +
-                    $"AND Quantity > 0", new string[] { "Description" }, config);
+                    $"AND Quantity > 0", new[] { "Description" });
                 if (dt.Rows.Count < 1)
                 {
                     await botClient.SendTextMessageAsync(e.Message.Chat.Id, $"You are not holding any {itemName}.");
-                    return;
                 } else
                 {
                     await botClient.SendTextMessageAsync(e.Message.Chat.Id, dt.Rows[0]["Description"].ToString());

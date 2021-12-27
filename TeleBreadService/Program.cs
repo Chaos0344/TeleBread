@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// ReSharper disable RedundantUsingDirective
+using System;
 using System.Configuration.Install;
 using System.Reflection;
-using System.Linq;
 using System.ServiceProcess;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TeleBreadService
 {

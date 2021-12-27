@@ -1,38 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
-using TeleBreadService.General;
+using System.Linq;
 using TeleBreadService.Objects;
-namespace TeleBreadService.Common
+namespace TeleBreadService.General
 {
     /// <summary>
     /// Setup contains functions used to prepare the service to run
     /// </summary>
     public class Setup
     {
-        private Dictionary<string, string> config = new Dictionary<string, string>();
+        private Dictionary<string, string> Config { get; set; }
 
         /// <summary>
         /// Queries the database for pending Orb Predictions.
         /// </summary>
         /// <returns>List of OrbPredictions from the database.</returns>
-        private List<OrbPredictions> getPredictions()
+        private List<OrbPredictions> GetPredictions()
         {
-            List<OrbPredictions> predictionsList = new List<OrbPredictions>();
-            DataTable dt = new CommonFunctions().runQuery(
+            var dt = new CommonFunctions(Config).RunQuery(
                 "SELECT userID, groupChat, predictionText FROM dbo.Predictions",
-                new string[] {"userID", "groupChat", "predictionText"},
-                config);
-            foreach (DataRow row in dt.Rows)
-            {
-                OrbPredictions p = new OrbPredictions(
-                    row["predictionText"].ToString(),
-                    long.Parse(row["userID"].ToString()),
-                    long.Parse(row["groupChat"].ToString()));
-                predictionsList.Add(p);
-            }
+                new [] {"userID", "groupChat", "predictionText"});
 
-            return predictionsList;
+            return (from DataRow row 
+                in dt.Rows 
+                select new OrbPredictions(row["predictionText"].ToString(),
+                long.Parse(row["userID"].ToString()),
+                long.Parse(row["groupChat"].ToString()))).ToList();
         }
         
         /// <summary>
@@ -41,7 +34,7 @@ namespace TeleBreadService.Common
         /// <param name="c">The config Dictionary</param>
         public Setup(Dictionary<string, string> c)
         {
-            config = c;
+            Config = c;
         }
     }
 }
