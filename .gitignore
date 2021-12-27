@@ -1,4 +1,5 @@
 .vs*
 .local*
+.idea*
 .DS_STORE?
 .DS_STORE
