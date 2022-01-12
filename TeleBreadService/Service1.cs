@@ -8,8 +8,10 @@ using Telegram.Bot.Extensions.Polling;
 using System.ServiceProcess;
 using System.Threading.Tasks;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using TeleBreadService.General;
+using TeleBreadService.Objects;
 
 namespace TeleBreadService
 {
@@ -28,7 +30,9 @@ namespace TeleBreadService
         private static ITelegramBotClient botClient;
         private static CancellationTokenSource cts = new CancellationTokenSource();
         private System.Timers.Timer _payDay = new System.Timers.Timer();
-        
+        private List<Event> _events = new List<Event>();
+        private List<OrbPredictions> _predictionsList = new List<OrbPredictions>();
+        private List<ChatListener> _listeners = new List<ChatListener>();
         
 
         /// <summary>
@@ -56,7 +60,9 @@ namespace TeleBreadService
             _payDay.AutoReset = false;
             _payDay.Enabled = true;
             botClient = new TelegramBotClient(_config["apiKey"]);
-            
+
+            Setup s = new Setup(_config);
+            _predictionsList = s.GetPredictions();
 
             var receiverOptions = new ReceiverOptions();
             botClient.StartReceiving(HandleUpdateAsync,
@@ -68,6 +74,37 @@ namespace TeleBreadService
         
         async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
+            if (update.Type == UpdateType.CallbackQuery)
+            {
+                foreach (var listener in _listeners)
+                {
+                    if (listener.target == update.CallbackQuery.From.Id && listener.type == "Callback")
+                    {
+                        switch (listener.subtype)
+                        {
+                            case "OrbTarget":
+                                if (update.CallbackQuery.Data == "Cancel")
+                                {
+                                    _listeners.Remove(listener);
+                                }
+
+                                ChatListener newListener =
+                                    new ChatListener(update.CallbackQuery.From.Id, "Text", "OrbText");
+                                newListener.predictionHolder = new OrbPredictions(
+                                    long.Parse(update.CallbackQuery.Data), 
+                                    chat: new CommonFunctions(_config).GetGroupChat(update.CallbackQuery.From.Id), 
+                                    _config);
+                                _listeners.Add(newListener);
+                                _listeners.Remove(listener);
+                                var chat = new CommonFunctions(_config).GetPrivateChat(update.CallbackQuery.From.Id);
+                                await botClient.SendTextMessageAsync(chat, "Please send a message " +
+                                    "containing the item that your target will lick next.");
+                                break;
+                        }
+                        return;
+                    }
+                }
+            }
             // Only process Message updates: https://core.telegram.org/bots/api#message
             if (update.Type != UpdateType.Message)
                 return;
@@ -82,10 +119,10 @@ namespace TeleBreadService
 
             if (update.Message!.Type == MessageType.Text)
             {
-                _ = new RunCommand(botClient, update, _config);
+                _ = new RunCommand(botClient, update, _config, _predictionsList, _listeners);
             }
         }
-        
+
         Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {
             var errorMessage = exception switch

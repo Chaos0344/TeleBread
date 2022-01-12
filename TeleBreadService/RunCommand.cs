@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using TeleBreadService.General;
+using TeleBreadService.Items;
+using TeleBreadService.Objects;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -9,13 +11,15 @@ namespace TeleBreadService
 {
     public class RunCommand
     {
-        public RunCommand(ITelegramBotClient botClient, Update e, Dictionary<string, string> config)
+        public RunCommand(ITelegramBotClient botClient, Update e, 
+            Dictionary<string, string> config, List<OrbPredictions> predictions, List<ChatListener> listeners)
         {
             var chatId = e.Message.Chat.Id;
             var messageText = e.Message.Text;
             var userId = e.Message.From.Id;
             var c = new Commands(config);
             var cf = new CommonFunctions(config);
+            var p = predictions;
             int maintenance = 0;
             try
             {
@@ -25,6 +29,29 @@ namespace TeleBreadService
             {
                 cf.WriteQuery($"INSERT INTO dbo.SERVICES (groupChat, Service, Status) " +
                                                          $"VALUES (0, 'Maintenance', 0)");
+            }
+            
+            // Check for listeners
+            foreach (var listener in listeners)
+            {
+                if (listener.target == e.Message.From.Id && listener.type == "Text")
+                {
+                    switch (listener.subtype)
+                    {
+                        case "OrbText":
+                            OrbPredictions prediction = listener.predictionHolder;
+                            prediction.AddText(e.Message.Text);
+                            prediction.SaveToDB();
+                            predictions.Add(prediction);
+                            listeners.Remove(listener);
+                            cf.AddToInventory("Orb", -1, e.Message.From.Id);
+                            botClient.SendTextMessageAsync(cf.GetGroupChat(e.Message.From.Id),
+                                $"{e.Message.From.FirstName} has seen into the future!");
+                            break;
+                    }
+
+                    return;
+                }
             }
 
             // Out of context commands
@@ -56,7 +83,8 @@ namespace TeleBreadService
                 }
                 if (messageText != null && messageText.ToLower().Contains("/test"))
                 {
-                    //_ = new Payroll(botClient, config);
+                    _ = new Payroll(botClient, config);
+                    //cf.AddToInventory("Orb", 1, e.Message.From.Id);
                     return;
                 }
             }
@@ -93,7 +121,23 @@ namespace TeleBreadService
 
                     if (messageText != null && messageText.ToLower().Contains("/lick"))
                     {
+                        foreach (var pred in p)
+                        {
+                            if (pred.predictionTarget == e.Message.From.Id && pred.predictionChat == e.Message.Chat.Id)
+                            {
+                                c.Lick(botClient, e, pred.predictionText);
+                                pred.Triggered();
+                                p.Remove(pred);
+                                return;
+                            }
+                        }
                         c.Lick(botClient, e);
+                        return;
+                    }
+
+                    if (messageText != null && messageText.ToLower().Contains("/use"))
+                    {
+                        new UseItem(botClient, e, listeners, config);
                         return;
                     }
 

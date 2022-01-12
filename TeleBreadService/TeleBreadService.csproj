@@ -72,9 +72,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="General\Bread.cs" />
+    <Compile Include="General\ChatListener.cs" />
     <Compile Include="General\CommonFunctions.cs" />
     <Compile Include="General\Event.cs" />
     <Compile Include="General\Payroll.cs" />
+    <Compile Include="Items\UseItem.cs" />
     <Compile Include="Objects\OrbPredictions.cs" />
     <Compile Include="ProjectInstaller.cs">
       <SubType>Component</SubType>

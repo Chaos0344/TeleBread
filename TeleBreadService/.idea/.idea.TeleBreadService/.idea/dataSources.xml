@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="TeleBread" uuid="fa59a627-56fc-42c8-b968-7b1674d46f1d">
+    <data-source source="LOCAL" name="TeleBread" uuid="0f50efca-fd38-475c-ad7d-1ad98e1df0d3">
       <driver-ref>sqlserver.ms</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</jdbc-driver>

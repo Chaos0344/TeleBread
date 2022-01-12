@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Runtime.Remoting.Messaging;
+
 namespace TeleBreadService.General
 {
     public class CommonFunctions
@@ -64,6 +66,27 @@ namespace TeleBreadService.General
                 new Service1().WriteToFile(z.ToString());
             }
             conn.Close();
+        }
+        
+        public int WriteQueryWithId(string query)
+        {
+            int returnedID = 0;
+            SqlConnection conn = new SqlConnection($"server={Config["dbserver"]};" +
+                                                   $"database=TeleBread;" +
+                                                   $"uid={Config["dbuser"]};" +
+                                                   $"pwd={Config["dbpassword"]}");
+            SqlCommand comm = new SqlCommand(query, conn);
+            conn.Open();
+            using (SqlDataReader reader = comm.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    returnedID = int.Parse(reader.GetValue(0).ToString());
+                }
+            }
+            
+            conn.Close();
+            return returnedID;
         }
 
         /// <summary>

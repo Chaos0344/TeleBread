@@ -106,5 +106,46 @@ namespace TeleBreadService.General
                 .TotalMilliseconds;
             payDay.Enabled = true;
         }
+        
+        public Payroll(ITelegramBotClient botClient, Dictionary<string, string> c)
+        {
+            Config = c;
+            cf = new CommonFunctions(Config);
+            var chats = GetChats();
+            foreach (var chat in chats)
+            {
+                if (chat == 0)
+                {
+                    continue;
+                }
+                var users = GetUsers(chat);
+                var members = QueryMembers(chat);
+                var budget = members * 5;
+                var totalMessages = TotalMessages(chat);
+                if (totalMessages == 0)
+                {
+                    continue;
+                }
+                foreach (var user in users)
+                {
+                    var act = GetActivity(chat, user);
+                    var pct = (int)Math.Round(act / (double)totalMessages * 100);
+                    var pay = (int)Math.Round(budget * (double)pct / 100);
+                    cf.AddToInventory("Bread", pay, user);
+                    var pvt = cf.GetPrivateChat(user);
+                    if (pvt != 0)
+                    {
+                        botClient.SendTextMessageAsync(pvt,
+                            $"You sent {act} messages out of {totalMessages} and received {pct}% of the pot. " +
+                            $"You have received {pay} Bread.");
+                    }
+                }
+
+                botClient.SendTextMessageAsync(chat,
+                    "It's Payday! If you have a private chat configured, you can check it for " +
+                    "your pay details, otherwise use /inventory to see your new balance.");
+                cf.WriteQuery("DELETE FROM dbo.Timesheet");
+            }
+        }
     }
 }

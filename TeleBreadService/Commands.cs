@@ -135,6 +135,12 @@ namespace TeleBreadService
             }
         }
 
+        public async void Lick(ITelegramBotClient botClient, Update e, string item)
+        {
+            await botClient.SendTextMessageAsync(e.Message.Chat.Id,
+                $"{e.Message.From.FirstName} licked {item}\nThe prophecy has come true!");
+        }
+
         /// <summary>
         /// Admin command, sets chat in maintenance mode.
         /// </summary>
