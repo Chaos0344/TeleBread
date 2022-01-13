@@ -83,8 +83,9 @@ namespace TeleBreadService
                 }
                 if (messageText != null && messageText.ToLower().Contains("/test"))
                 {
-                    _ = new Payroll(botClient, config);
+                    //_ = new Payroll(botClient, config);
                     //cf.AddToInventory("Orb", 1, e.Message.From.Id);
+                    new Bread().shop(botClient, e, config, listeners);
                     return;
                 }
             }
@@ -137,13 +138,25 @@ namespace TeleBreadService
 
                     if (messageText != null && messageText.ToLower().Contains("/use"))
                     {
-                        new UseItem(botClient, e, listeners, config);
+                        _ = new UseItem(botClient, e, listeners, config);
                         return;
                     }
 
                     if (messageText != null && messageText.ToLower().Contains("/bread"))
                     {
                         _ = new Bread(botClient, e, chatId, config);
+                        return;
+                    }
+
+                    if (messageText != null && messageText.ToLower().Contains("/ponder"))
+                    {
+                        c.Ponder(botClient, e);
+                        return;
+                    }
+
+                    if (messageText != null && (messageText.ToLower() == "/shop" || messageText.ToLower() == "/store"))
+                    {
+                        new Bread().shop(botClient, e, config, listeners);
                         return;
                     }
                 }

@@ -3,6 +3,8 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using System.Data;
+using Telegram.Bot.Types.Payments;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace TeleBreadService.General
 {
@@ -74,6 +76,63 @@ namespace TeleBreadService.General
             }
             botClient.SendTextMessageAsync(groupChat,
                 $"{e.Message.From.FirstName} thought {firstName} deserved some bread{text}\nNew Bread Balance: {newBread}.");
+        }
+        
+        public Bread(){}
+
+        public void shop(ITelegramBotClient botClient, Update e, Dictionary<string, string> config, List<ChatListener> listeners)
+        {
+            List<List<InlineKeyboardButton>> buttons = new List<List<InlineKeyboardButton>>();
+            buttons.Add(new List<InlineKeyboardButton>()
+            {
+                new InlineKeyboardButton("Cat Picture (1)")
+                {
+                    CallbackData = "CatPic"
+                }, new InlineKeyboardButton("Cat GIF (3)")
+                {
+                    CallbackData = "CatGif"
+                }
+            });
+            buttons.Add(new List<InlineKeyboardButton>()
+            {
+                new InlineKeyboardButton("Dog Picture (1)")
+                {
+                    CallbackData = "DogPic"
+                }, new InlineKeyboardButton("Dog GIF (3)")
+                {
+                    CallbackData = "DogGif"
+                }
+            });
+            buttons.Add(new List<InlineKeyboardButton>()
+            {
+                new InlineKeyboardButton("Orb (5)")
+                {
+                    CallbackData = "Orb"
+                }, new InlineKeyboardButton("Inf. Gaunt (10)")
+                {
+                    CallbackData = "InfGaunt"
+                }
+            });
+            buttons.Add(new List<InlineKeyboardButton>()
+            {
+                new InlineKeyboardButton("Ring (10)")
+                {
+                    CallbackData = "Ring"
+                }, new InlineKeyboardButton("Purgestone (15)")
+                {
+                    CallbackData = "Purge"
+                }
+            });
+            buttons.Add(new List<InlineKeyboardButton>()
+            {
+                new InlineKeyboardButton("Cancel")
+                {
+                    CallbackData = "Cancel"
+                }
+            });
+            var msgId = botClient.SendTextMessageAsync(e.Message.Chat.Id, "Test box:",
+                replyMarkup: new InlineKeyboardMarkup(buttons)).Result.MessageId;
+            listeners.Add(new ChatListener(e.Message.From.Id, "Callback", $"Shop,{msgId},{e.Message.Chat.Id}"));
         }
     }
 }

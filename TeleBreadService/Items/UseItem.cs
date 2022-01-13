@@ -81,9 +81,9 @@ namespace TeleBreadService.Items
                         }
                     });
 
-                    listeners.Add(new ChatListener(e.Message.From.Id, "Callback", "OrbTarget"));
-                    await botClient.SendTextMessageAsync(privateChat, "Select a target:",
-                        replyMarkup: new InlineKeyboardMarkup(buttons));
+                    var msgId = botClient.SendTextMessageAsync(privateChat, "Select a target:",
+                        replyMarkup: new InlineKeyboardMarkup(buttons)).Result.MessageId;
+                    listeners.Add(new ChatListener(e.Message.From.Id, "Callback", $"OrbTarget,{msgId},{privateChat}"));
                     return;
                 }
 

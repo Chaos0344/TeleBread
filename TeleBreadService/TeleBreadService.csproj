@@ -71,6 +71,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Callbacks.cs" />
     <Compile Include="General\Bread.cs" />
     <Compile Include="General\ChatListener.cs" />
     <Compile Include="General\CommonFunctions.cs" />

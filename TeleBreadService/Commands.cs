@@ -207,5 +207,20 @@ namespace TeleBreadService
             }
         }
 
+        public async void Ponder(ITelegramBotClient botClient, Update e)
+        {
+            var userId = e.Message.From.Id;
+            var cf = new General.CommonFunctions(Config);
+            var inv = cf.CheckInventory("Orb", userId);
+            if (inv > 0)
+            {
+                await botClient.SendTextMessageAsync(e.Message.Chat.Id, $"{e.Message.From.FirstName} ponders the orb.");
+            }
+            else
+            {
+                await botClient.SendTextMessageAsync(e.Message.Chat.Id, "You do not have an Orb to ponder.");
+            }
+        }
+
     }
 }

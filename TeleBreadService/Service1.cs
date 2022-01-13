@@ -21,8 +21,8 @@ namespace TeleBreadService
         {
             InitializeComponent();
         }
-        private static string _local = "/Users/blakeroetzel/Documents/Dev/TeleBreadService/.local/";
-        //private string local = "C:/dev/TeleBread/.local/";
+        //private static string _local = "/Users/blakeroetzel/Documents/Dev/TeleBreadService/.local/";
+        private string _local = "C:/dev/TeleBread/.local/";
 
         private static readonly Dictionary<string, string> _config = new Dictionary<string, string>();
       
@@ -80,27 +80,7 @@ namespace TeleBreadService
                 {
                     if (listener.target == update.CallbackQuery.From.Id && listener.type == "Callback")
                     {
-                        switch (listener.subtype)
-                        {
-                            case "OrbTarget":
-                                if (update.CallbackQuery.Data == "Cancel")
-                                {
-                                    _listeners.Remove(listener);
-                                }
-
-                                ChatListener newListener =
-                                    new ChatListener(update.CallbackQuery.From.Id, "Text", "OrbText");
-                                newListener.predictionHolder = new OrbPredictions(
-                                    long.Parse(update.CallbackQuery.Data), 
-                                    chat: new CommonFunctions(_config).GetGroupChat(update.CallbackQuery.From.Id), 
-                                    _config);
-                                _listeners.Add(newListener);
-                                _listeners.Remove(listener);
-                                var chat = new CommonFunctions(_config).GetPrivateChat(update.CallbackQuery.From.Id);
-                                await botClient.SendTextMessageAsync(chat, "Please send a message " +
-                                    "containing the item that your target will lick next.");
-                                break;
-                        }
+                        _ = new Callbacks(botClient, update, _config, listener, _listeners);
                         return;
                     }
                 }
