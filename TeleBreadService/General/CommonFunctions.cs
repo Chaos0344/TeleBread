@@ -148,6 +148,12 @@ namespace TeleBreadService.General
             return long.Parse(dt.Rows[0]["userID"].ToString());
         }
 
+        public string GetFirstName(long userId)
+        {
+            DataTable dt = RunQuery($"SELECT FirstName from dbo.Users where userID = {userId}", new[] {"FN"});
+            return dt.Rows[0]["FN"].ToString();
+        }
+
         /// <summary>
         /// Checks if the chat in chatID is userID's group chat.
         /// </summary>

@@ -1,18 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using TeleBreadService.General;
 using TeleBreadService.Items;
 using TeleBreadService.Objects;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Poll = TeleBreadService.General.Poll;
 
 namespace TeleBreadService
 {
+    
+    
     public class RunCommand
     {
+        private async void delMsg(ITelegramBotClient botClient, long delchat, int oldMsg)
+        {
+            await botClient.DeleteMessageAsync(delchat, oldMsg);
+        }
+        
         public RunCommand(ITelegramBotClient botClient, Update e, 
-            Dictionary<string, string> config, List<OrbPredictions> predictions, List<ChatListener> listeners)
+            Dictionary<string, string> config, List<OrbPredictions> predictions, List<ChatListener> listeners, List<Poll> polls, List<Trade> trades)
         {
             var chatId = e.Message.Chat.Id;
             var messageText = e.Message.Text;
@@ -36,7 +45,7 @@ namespace TeleBreadService
             {
                 if (listener.target == e.Message.From.Id && listener.type == "Text")
                 {
-                    switch (listener.subtype)
+                    switch (listener.subtype.Split(',')[0])
                     {
                         case "OrbText":
                             OrbPredictions prediction = listener.predictionHolder;
@@ -47,6 +56,53 @@ namespace TeleBreadService
                             cf.AddToInventory("Orb", -1, e.Message.From.Id);
                             botClient.SendTextMessageAsync(cf.GetGroupChat(e.Message.From.Id),
                                 $"{e.Message.From.FirstName} has seen into the future!");
+                            break;
+                        case "TradeSendQty":
+                            // TODO Handle qty message
+                            var trade = (from Trade x in trades
+                                where x.SenderId == e.Message.From.Id
+                                select x).First();
+
+                            var senderPrivate = cf.GetPrivateChat(trade.SenderId);
+
+                            // Delete old message because I hate leaving prompts chilling.
+                            var subSplit = listener.subtype.Split(',');
+                            delMsg(botClient, long.Parse(subSplit[1]), Int32.Parse(subSplit[2]));
+                            listeners.Remove(listener);
+                            int tradeQty;
+                            // Make sure the user is submitting a number.
+                            try
+                            {
+                                tradeQty = Int32.Parse(e.Message.Text);
+                            }
+                            catch (Exception)
+                            {
+                                botClient.SendTextMessageAsync(senderPrivate,
+                                    "I coudln't process that into a number. Process canceled.");
+                                return;
+                            }
+                            
+                            // Make sure user isn't submitting less than 1
+                            if (tradeQty < 1)
+                            {
+                                botClient.SendTextMessageAsync(senderPrivate,
+                                    "You cannot offer to trade less than 1 of any item. Process canceled.");
+                                
+                                return;
+                            }
+
+                            trade.SendQty = tradeQty;
+
+                            var otherPrivate = cf.GetPrivateChat(trade.ReceiverId);
+                            
+
+                            botClient.SendTextMessageAsync(senderPrivate,
+                                "Sending start of offer to other party. You will have the opportunity to confirm their offer before the trade concludes.");
+                            
+                            botClient.SendTextMessageAsync(otherPrivate, "")
+                            
+                            var senderId = listener.target;
+                            var receiverId = long.Parse(listener.subtype.Split(',')[1]);
                             break;
                     }
 
@@ -110,8 +166,19 @@ namespace TeleBreadService
             {
                 // No entities, we good.
             }
+            
+            // Can be used in Private Chats by anyone
+            if (cf.GetPrivateChat(userId) == chatId)
+            {
+                if (messageText != null && messageText.ToLower().Contains("/trade"))
+                {
+                    // TODO Check for existing trade and delete it.
+                    c.Trade(botClient, e, listeners);
+                    return;
+                }
+            }
 
-            // Cab be used in Group Chats by anyone
+            // Can be used in Group Chats by anyone
                 if (cf.GetGroupChat(userId) == chatId)
                 {
                     if(messageText != null && messageText.ToLower().Contains("/inventory"))
@@ -151,6 +218,17 @@ namespace TeleBreadService
                     if (messageText != null && messageText.ToLower().Contains("/ponder"))
                     {
                         c.Ponder(botClient, e);
+                        return;
+                    }
+
+                    if (messageText != null && messageText.ToLower().Contains("/givebadge"))
+                    {
+                        c.GiveBadge(botClient, e, polls);
+                    }
+
+                    if (messageText != null && messageText.ToLower() == "/badges")
+                    {
+                        c.Badges(botClient, e);
                         return;
                     }
 

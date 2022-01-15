@@ -77,8 +77,11 @@
     <Compile Include="General\CommonFunctions.cs" />
     <Compile Include="General\Event.cs" />
     <Compile Include="General\Payroll.cs" />
+    <Compile Include="General\Poll.cs" />
+    <Compile Include="General\Trade.cs" />
     <Compile Include="Items\UseItem.cs" />
     <Compile Include="Objects\OrbPredictions.cs" />
+    <Compile Include="PollHandler.cs" />
     <Compile Include="ProjectInstaller.cs">
       <SubType>Component</SubType>
     </Compile>

@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using System.Data;
+using TeleBreadService.General;
+using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
+using Poll = TeleBreadService.General.Poll;
 
 namespace TeleBreadService
 {
@@ -207,6 +211,90 @@ namespace TeleBreadService
             }
         }
 
+        public async void Badges(ITelegramBotClient botClient, Update e)
+        {
+            var userId = e.Message.From.Id;
+            CommonFunctions cf = new CommonFunctions(Config);
+            DataTable dt = cf.RunQuery($"SELECT badge, [date] FROM dbo.Badges where userID = {userId} order by [date]",
+                new[] {"badge", "date"});
+
+            if (dt.Rows.Count < 1)
+            {
+                await botClient.SendTextMessageAsync(e.Message.Chat.Id,
+                    "You do not have any badges. Do something badge-worthy.");
+                return;
+            }
+            
+            
+
+            var badges = "You have the following badges:";
+            foreach (DataRow row in dt.Rows)
+            {
+                DateTime badgeDate = DateTime.Parse(row["date"].ToString());
+                badges += $"\n{row["badge"]} : {badgeDate.ToString("MM-dd-yy")}";
+            }
+
+            await botClient.SendTextMessageAsync(e.Message.Chat.Id, badges);
+        }
+
+        public async void GiveBadge(ITelegramBotClient botClient, Update e, List<Poll> polls)
+        {
+            var cf = new CommonFunctions(Config);
+            var chatId = e.Message.Chat.Id;
+            var splitMsg = e.Message.Text.Split(' ');
+            var badge = e.Message.Text.Replace($"{splitMsg[0]} {splitMsg[1]} ", "");
+            
+            if (e.Message.Entities.Length != 2)
+            {
+                await botClient.SendTextMessageAsync(chatId, 
+                    "Please _'Mention'_ a user to use this command \\. Example: /givebadge @user badge name", 
+                    parseMode:ParseMode.MarkdownV2);
+                return;
+            }
+            if (e.Message.Text.ToLower().Contains("/givebadge @telebread_bot"))
+            {
+                await botClient.SendTextMessageAsync(chatId, "You cannot give the bot badges...");
+            }
+            long userId;
+            long groupChat = e.Message.Chat.Id;
+            if (e.Message.Entities[1].Type == MessageEntityType.Mention && e.Message.Entities[1].User is null)
+            {
+                // User has username
+                userId = cf.GetUserId(groupChat, e.Message.Text.Split(' ')[1].Replace("@", ""));
+            } else
+            {
+                userId = e.Message.Entities[1].User.Id;
+            }
+            if (userId == 0) {
+                await botClient.SendTextMessageAsync(groupChat, "This user is not in the database yet, or hasn't set their " +
+                                                          "group chat. They can add themselves with the \\group command.");
+                return;
+            }
+            if (userId == e.Message.From.Id)
+            {
+                await botClient.SendTextMessageAsync(groupChat, $"{e.Message.From.FirstName} tried to give themselves a badge. " +
+                                                          $"This is a federal crime. The authorities have been contacted.");
+                return;
+            }
+
+            DataTable dt = cf.RunQuery($"SELECT FirstName FROM dbo.Users WHERE userID = {userId}", new[] {"FirstName"});
+            var firstName = dt.Rows[0]["FirstName"].ToString();
+
+            var pId = await botClient.SendPollAsync(chatId, $"Should {firstName} receive the '{badge}' badge?", new []{"Yes", "No"}, isAnonymous:false);
+            Poll p = new Poll(long.Parse(pId.Poll.Id), "Badge", chatId, userId, null, badge, Config );
+            polls.Add(p);
+        }
+
+        public async void grantBadge(ITelegramBotClient botClient, long userId, long chatId, string badge)
+        {
+            var cf = new CommonFunctions(Config);
+            DateTime date = DateTime.Now;
+            cf.WriteQuery($"INSERT INTO dbo.Badges (userId, badge, date) VALUES ({userId}, '{badge}', '{date.ToString()}')");
+            DataTable dt = cf.RunQuery($"SELECT FirstName from dbo.Users where userID = {userId}", new[] {"FirstName"});
+            var FirstName = dt.Rows[0]["FirstName"].ToString();
+            await botClient.SendTextMessageAsync(chatId, $"{FirstName} has been granted the {badge} badge!");
+        }
+
         public async void Ponder(ITelegramBotClient botClient, Update e)
         {
             var userId = e.Message.From.Id;
@@ -220,6 +308,37 @@ namespace TeleBreadService
             {
                 await botClient.SendTextMessageAsync(e.Message.Chat.Id, "You do not have an Orb to ponder.");
             }
+        }
+
+        public async void Trade(ITelegramBotClient botClient, Update e, List<ChatListener> listeners)
+        {
+            var cf = new CommonFunctions(Config);
+            var groupChat = cf.GetGroupChat(e.Message.From.Id);
+            DataTable dt = cf.RunQuery($"SELECT FirstName, UserID FROM dbo.Users WHERE groupChat = {groupChat}",
+                new[] {"FirstName", "UserID"});
+            List<List<InlineKeyboardButton>> buttons = new List<List<InlineKeyboardButton>>();
+            foreach (DataRow row in dt.Rows)
+            {
+                buttons.Add(new List<InlineKeyboardButton>()
+                {
+                    new InlineKeyboardButton(row["FirstName"].ToString())
+                    {
+                        CallbackData = row["UserID"].ToString()
+                    }
+                });
+            }
+            buttons.Add(new List<InlineKeyboardButton>()
+            {
+                new InlineKeyboardButton("Cancel")
+                {
+                    CallbackData = "Cancel"
+                }
+            });
+
+            var msgId = botClient.SendTextMessageAsync(cf.GetPrivateChat(e.Message.From.Id), "Select a trading partner:",
+                replyMarkup: new InlineKeyboardMarkup(buttons)).Result.MessageId;
+            
+            listeners.Add(new ChatListener(e.Message.From.Id, "Callback", $"Trade,{msgId},{e.Message.Chat.Id}"));
         }
 
     }

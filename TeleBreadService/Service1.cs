@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading;
 using TeleBreadService.General;
 using TeleBreadService.Objects;
+using Poll = TeleBreadService.General.Poll;
 
 namespace TeleBreadService
 {
@@ -33,6 +34,8 @@ namespace TeleBreadService
         private List<Event> _events = new List<Event>();
         private List<OrbPredictions> _predictionsList = new List<OrbPredictions>();
         private List<ChatListener> _listeners = new List<ChatListener>();
+        private List<Poll> _polls = new List<Poll>();
+        private List<Trade> _trades = new List<Trade>();
         
 
         /// <summary>
@@ -80,10 +83,25 @@ namespace TeleBreadService
                 {
                     if (listener.target == update.CallbackQuery.From.Id && listener.type == "Callback")
                     {
-                        _ = new Callbacks(botClient, update, _config, listener, _listeners);
+                        _ = new Callbacks(botClient, update, _config, listener, _listeners, _trades);
                         return;
                     }
                 }
+            }
+
+            if (update.Type == UpdateType.PollAnswer)
+            {
+                try
+                {
+                    _ = new PollHandler(botClient, long.Parse(update.PollAnswer.PollId), _polls, update, _config);
+                    return;
+                }
+                catch (Exception z)
+                {
+                    
+                }
+
+                
             }
             // Only process Message updates: https://core.telegram.org/bots/api#message
             if (update.Type != UpdateType.Message)
@@ -99,7 +117,7 @@ namespace TeleBreadService
 
             if (update.Message!.Type == MessageType.Text)
             {
-                _ = new RunCommand(botClient, update, _config, _predictionsList, _listeners);
+                _ = new RunCommand(botClient, update, _config, _predictionsList, _listeners, _polls, _trades);
             }
         }
 

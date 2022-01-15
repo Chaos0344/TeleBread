@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlTypes;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
@@ -9,6 +11,7 @@ using Telegram.Bot;
 using Telegram.Bot.Requests;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.InputFiles;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace TeleBreadService
 {
@@ -19,7 +22,7 @@ namespace TeleBreadService
         private Update e { get; set; }
         private CommonFunctions cf { get; set; }
 
-        public Callbacks(ITelegramBotClient bC, Update u, Dictionary<string, string> c, ChatListener listener, List<ChatListener> listeners)
+        public Callbacks(ITelegramBotClient bC, Update u, Dictionary<string, string> c, ChatListener listener, List<ChatListener> listeners, List<Trade> trades)
         {
             config = c;
             botClient = bC;
@@ -41,6 +44,12 @@ namespace TeleBreadService
                     break;
                 case "OrbTarget":
                     Orb(listener,listeners);
+                    break;
+                case "Trade":
+                    Trade(listener,listeners, trades);
+                    break;
+                case "Trade2":
+                    Trade2(listener, listeners, trades);
                     break;
             }
         }
@@ -128,6 +137,7 @@ namespace TeleBreadService
             if (e.CallbackQuery.Data == "Cancel")
             {
                 listeners.Remove(listener);
+                return;
             }
 
             ChatListener newListener =
@@ -141,6 +151,82 @@ namespace TeleBreadService
             var chat = new CommonFunctions(config).GetPrivateChat(e.CallbackQuery.From.Id);
             botClient.SendTextMessageAsync(chat, "Please send a message " +
                                                  "containing the item that your target will lick next.");
+        }
+
+        private void Trade(ChatListener listener, List<ChatListener> listeners, List<Trade> trades)
+        {
+            if (e.CallbackQuery.Data == "Cancel")
+            {
+                listeners.Remove(listener);
+                return;
+            }
+
+            var senderId = listener.target;
+            var receiverId = long.Parse(e.CallbackQuery.Data);
+
+            DataTable dt = new CommonFunctions(config).RunQuery(
+                $"SELECT b.ItemName, a.quantity FROM Inventory a JOIN Items b ON a.ItemID = b.ItemID WHERE a.userID = {receiverId}",
+                new[] {"ItemName", "Qty"});
+            
+            List<List<InlineKeyboardButton>> buttons = new List<List<InlineKeyboardButton>>();
+            Dictionary<string, int> receiverInv = new Dictionary<string, int>();
+            
+            foreach (DataRow row in dt.Rows)
+            {
+                buttons.Add(new List<InlineKeyboardButton>()
+                {
+                    new InlineKeyboardButton($"{row["ItemName"]}. Available: {row["Qty"]}")
+                    {
+                        CallbackData = row["ItemName"].ToString()
+                    }
+                });
+                receiverInv[row["ItemName"].ToString()] = int.Parse(row["Qty"].ToString());
+            }
+            buttons.Add(new List<InlineKeyboardButton>()
+            {
+                new InlineKeyboardButton("Cancel")
+                {
+                    CallbackData = "Cancel"
+                }
+            });
+            var trade = new General.Trade(config, senderId, receiverId);
+            trade.SenderName = cf.GetFirstName(senderId);
+            trade.ReceiverName = cf.GetFirstName(receiverId);
+            trade.receiverInventory = receiverInv;
+            trades.Add(trade);
+            var chat = new CommonFunctions(config).GetPrivateChat(senderId);
+
+            var oldMsg = botClient.SendTextMessageAsync(chat,
+                $"Please select what you want from {trade.ReceiverName}.", replyMarkup: new InlineKeyboardMarkup(buttons)).Result.MessageId;
+            ChatListener newListener = new ChatListener(senderId, "Callback", $"Trade2,{oldMsg},{chat}");
+            listeners.Add(newListener);
+            listeners.Remove(listener);
+
+        }
+
+        private void Trade2(ChatListener listener, List<ChatListener> listeners, List<Trade> trades)
+        {
+            if (e.CallbackQuery.Data == "Cancel")
+            {
+                listeners.Remove(listener);
+                return;
+            }
+
+            foreach (var trade in trades)
+            {
+                if (trade.SenderId == e.CallbackQuery.From.Id)
+                {
+                    var privateChat = new CommonFunctions(config).GetPrivateChat(e.CallbackQuery.From.Id);
+                    trade.ReceiveItem = e.CallbackQuery.Data;
+                    listeners.Remove(listener);
+                    var mId = botClient
+                        .SendTextMessageAsync(privateChat, $"Please reply with the Quantity of {trade.SendItem} you would like to receive. (Max: {trade.senderInventory[trade.ReceiveItem]})")
+                        .Result.MessageId;
+                    listeners.Add(
+                        new ChatListener(e.CallbackQuery.From.Id, "Text", $"TradeSendQty,{privateChat},{mId}"));
+                }
+            }
+            
         }
         
         public async void  sendCat(long chatId, string imgType)
