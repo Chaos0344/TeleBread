@@ -7,6 +7,7 @@ using TeleBreadService.Objects;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 using Poll = TeleBreadService.General.Poll;
 
 namespace TeleBreadService
@@ -58,7 +59,6 @@ namespace TeleBreadService
                                 $"{e.Message.From.FirstName} has seen into the future!");
                             break;
                         case "TradeSendQty":
-                            // TODO Handle qty message
                             var trade = (from Trade x in trades
                                 where x.SenderId == e.Message.From.Id
                                 select x).First();
@@ -78,10 +78,9 @@ namespace TeleBreadService
                             catch (Exception)
                             {
                                 botClient.SendTextMessageAsync(senderPrivate,
-                                    "I coudln't process that into a number. Process canceled.");
+                                    "I coudln't parse that into a number. Process canceled.");
                                 return;
                             }
-                            
                             // Make sure user isn't submitting less than 1
                             if (tradeQty < 1)
                             {
@@ -90,19 +89,104 @@ namespace TeleBreadService
                                 
                                 return;
                             }
-
-                            trade.SendQty = tradeQty;
-
+                            if (tradeQty > trade.receiverInventory[trade.ReceiveItem])
+                            {
+                                botClient.SendTextMessageAsync(senderPrivate,
+                                    "You cannot request more of an item than they have.");
+                            }
+                            trade.ReceiveQty = tradeQty;
                             var otherPrivate = cf.GetPrivateChat(trade.ReceiverId);
-                            
-
+                            var buttons = new List<List<InlineKeyboardButton>>();
+                            foreach (var key in trade.receiverInventory.Keys)
+                            {
+                                buttons.Add(new List<InlineKeyboardButton>()
+                                {
+                                    new InlineKeyboardButton($"{key}. Available: {trade.receiverInventory[key]}")
+                                    {
+                                        CallbackData = key
+                                    }
+                                });
+                            }
+                            buttons.Add(new List<InlineKeyboardButton>()
+                            {
+                                new InlineKeyboardButton("Decline")
+                                {
+                                    CallbackData = "Decline"
+                                }
+                            });
                             botClient.SendTextMessageAsync(senderPrivate,
-                                "Sending start of offer to other party. You will have the opportunity to confirm their offer before the trade concludes.");
-                            
-                            botClient.SendTextMessageAsync(otherPrivate, "")
-                            
-                            var senderId = listener.target;
-                            var receiverId = long.Parse(listener.subtype.Split(',')[1]);
+                                $"Sending start of request to {trade.ReceiverName}. " +
+                                $"You will have the opportunity to confirm their offer before the trade concludes.");
+
+                            var cbId = botClient.SendTextMessageAsync(otherPrivate,
+                                $"You have received a trade request from {trade.SenderName}. They are requesting:\n" +
+                                $"{trade.ReceiveItem}. Qty:{trade.ReceiveQty}.\n" +
+                                $"You can ask for something in return, or decline the trade.",
+                                replyMarkup: new InlineKeyboardMarkup(buttons)).Result.MessageId;
+                            listeners.Add(new ChatListener(trade.ReceiverId, "Callback", $"Trade3,{cbId},{otherPrivate}"));
+                            break;
+                        case "TradeRecQty":
+                            var trade2 = (from Trade x in trades
+                                where x.ReceiverId == e.Message.From.Id
+                                select x).First();
+
+                            var receiverPrivate = cf.GetPrivateChat(trade2.ReceiverId);
+
+                            // Delete old message because I hate leaving prompts chilling.
+                            var subSplit2 = listener.subtype.Split(',');
+                            delMsg(botClient, long.Parse(subSplit2[1]), Int32.Parse(subSplit2[2]));
+                            listeners.Remove(listener);
+                            int tradeQty2;
+                            // Make sure the user is submitting a number.
+                            try
+                            {
+                                tradeQty2 = Int32.Parse(e.Message.Text);
+                            }
+                            catch (Exception)
+                            {
+                                botClient.SendTextMessageAsync(receiverPrivate,
+                                    "I coudln't parse that into a number. Process canceled.");
+                                return;
+                            }
+                            // Make sure user isn't submitting less than 1
+                            if (tradeQty2 < 1)
+                            {
+                                botClient.SendTextMessageAsync(receiverPrivate,
+                                    "You cannot offer to trade less than 1 of any item. Process canceled.");
+                                
+                                return;
+                            }
+                            if (tradeQty2 > trade2.senderInventory[trade2.SendItem])
+                            {
+                                botClient.SendTextMessageAsync(receiverPrivate,
+                                    "You cannot request more of an item than they have.");
+                            }
+                            trade2.SendQty = tradeQty2;
+                            var otherPrivate2 = cf.GetPrivateChat(trade2.SenderId);
+                            var buttons2 = new List<List<InlineKeyboardButton>>();
+                            buttons2.Add(new List<InlineKeyboardButton>()
+                            {
+                                new InlineKeyboardButton($"Accept")
+                                {
+                                    CallbackData = "Accept"
+                                }
+                            });
+                            buttons2.Add(new List<InlineKeyboardButton>()
+                            {
+                                new InlineKeyboardButton("Decline")
+                                {
+                                    CallbackData = "Decline"
+                                }
+                            });
+                            botClient.SendTextMessageAsync(receiverPrivate,
+                                $"Sending your offer reply to {trade2.SenderName}. " +
+                                $"You will be informed when the trade is accepted or declined..");
+
+                            var cbId2 = botClient.SendTextMessageAsync(otherPrivate2,
+                                $"If you accept the trade you will get {trade2.ReceiveItem} qty: {trade2.ReceiveQty}. " +
+                                $"\nYou will trade {trade2.SendItem} qty: {trade2.SendQty}.",
+                                replyMarkup: new InlineKeyboardMarkup(buttons2)).Result.MessageId;
+                            listeners.Add(new ChatListener(trade2.SenderId, "Callback", $"Trade4,{cbId2},{otherPrivate2}"));
                             break;
                     }
 
@@ -173,7 +257,7 @@ namespace TeleBreadService
                 if (messageText != null && messageText.ToLower().Contains("/trade"))
                 {
                     // TODO Check for existing trade and delete it.
-                    c.Trade(botClient, e, listeners);
+                    c.Trade(botClient, e, listeners, trades);
                     return;
                 }
             }

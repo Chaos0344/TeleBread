@@ -310,13 +310,26 @@ namespace TeleBreadService
             }
         }
 
-        public async void Trade(ITelegramBotClient botClient, Update e, List<ChatListener> listeners)
+        public async void Trade(ITelegramBotClient botClient, Update e, List<ChatListener> listeners, List<Trade> trades)
         {
             var cf = new CommonFunctions(Config);
             var groupChat = cf.GetGroupChat(e.Message.From.Id);
             DataTable dt = cf.RunQuery($"SELECT FirstName, UserID FROM dbo.Users WHERE groupChat = {groupChat}",
                 new[] {"FirstName", "UserID"});
             List<List<InlineKeyboardButton>> buttons = new List<List<InlineKeyboardButton>>();
+            var clearTrades = true;
+            while (clearTrades)
+            {
+                foreach (var trade in trades)
+                {
+                    if (trade.SenderId == e.Message.From.Id)
+                    {
+                        trades.Remove(trade);
+                        break;
+                    }
+                }
+                clearTrades = false;
+            }
             foreach (DataRow row in dt.Rows)
             {
                 buttons.Add(new List<InlineKeyboardButton>()

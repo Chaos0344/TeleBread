@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlTypes;
+using System.Net.Configuration;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
@@ -33,10 +34,6 @@ namespace TeleBreadService
             var delChat = long.Parse(listSplit[2]);
             cf = new General.CommonFunctions(config);
             delMsg(delChat, oldMsg);
-            if (e.CallbackQuery.Data == "Cancel")
-            {
-                return;
-            }
             switch (st)
             {
                 case "Shop":
@@ -51,6 +48,12 @@ namespace TeleBreadService
                 case "Trade2":
                     Trade2(listener, listeners, trades);
                     break;
+                case "Trade3":
+                    Trade3(listener, listeners, trades);
+                    break;
+                case "Trade4":
+                    Trade4(listener, listeners, trades);
+                    break;
             }
         }
 
@@ -62,6 +65,10 @@ namespace TeleBreadService
         private void Shop(ChatListener listener, List<ChatListener> listeners)
         {
             listeners.Remove(listener);
+            if (e.CallbackQuery.Data == "Cancel")
+            {
+                return;
+            }
             var userId = listener.target;
             var chatId = cf.GetGroupChat(userId);
             int breadQty = cf.CheckInventory("Bread", userId);
@@ -134,12 +141,11 @@ namespace TeleBreadService
         
 
         private void Orb(ChatListener listener, List<ChatListener> listeners) {
+            listeners.Remove(listener);
             if (e.CallbackQuery.Data == "Cancel")
             {
-                listeners.Remove(listener);
                 return;
             }
-
             ChatListener newListener =
                 new ChatListener(e.CallbackQuery.From.Id, "Text", "OrbText");
             newListener.predictionHolder = new OrbPredictions(
@@ -147,7 +153,6 @@ namespace TeleBreadService
                 chat: new CommonFunctions(config).GetGroupChat(e.CallbackQuery.From.Id), 
                 config);
             listeners.Add(newListener);
-            listeners.Remove(listener);
             var chat = new CommonFunctions(config).GetPrivateChat(e.CallbackQuery.From.Id);
             botClient.SendTextMessageAsync(chat, "Please send a message " +
                                                  "containing the item that your target will lick next.");
@@ -155,32 +160,35 @@ namespace TeleBreadService
 
         private void Trade(ChatListener listener, List<ChatListener> listeners, List<Trade> trades)
         {
+            var senderId = listener.target;
+            var receiverId = long.Parse(e.CallbackQuery.Data);
+            var trade = new General.Trade(config, senderId, receiverId);
             if (e.CallbackQuery.Data == "Cancel")
             {
                 listeners.Remove(listener);
                 return;
             }
 
-            var senderId = listener.target;
-            var receiverId = long.Parse(e.CallbackQuery.Data);
-
-            DataTable dt = new CommonFunctions(config).RunQuery(
-                $"SELECT b.ItemName, a.quantity FROM Inventory a JOIN Items b ON a.ItemID = b.ItemID WHERE a.userID = {receiverId}",
-                new[] {"ItemName", "Qty"});
+            if (new CommonFunctions(config).GetPrivateChat(receiverId) == 0)
+            {
+                listeners.Remove(listener);
+                botClient.SendTextMessageAsync(new CommonFunctions(config).GetPrivateChat(senderId),
+                    "Your selected partner does not have a private chat configured. " +
+                    "Please reach out to them to create one and use the /private command.");
+                return;
+            }
             
             List<List<InlineKeyboardButton>> buttons = new List<List<InlineKeyboardButton>>();
-            Dictionary<string, int> receiverInv = new Dictionary<string, int>();
             
-            foreach (DataRow row in dt.Rows)
+            foreach (var key in trade.receiverInventory.Keys)
             {
                 buttons.Add(new List<InlineKeyboardButton>()
                 {
-                    new InlineKeyboardButton($"{row["ItemName"]}. Available: {row["Qty"]}")
+                    new InlineKeyboardButton($"{key}. Available: {trade.receiverInventory[key]}")
                     {
-                        CallbackData = row["ItemName"].ToString()
+                        CallbackData = key
                     }
                 });
-                receiverInv[row["ItemName"].ToString()] = int.Parse(row["Qty"].ToString());
             }
             buttons.Add(new List<InlineKeyboardButton>()
             {
@@ -189,10 +197,6 @@ namespace TeleBreadService
                     CallbackData = "Cancel"
                 }
             });
-            var trade = new General.Trade(config, senderId, receiverId);
-            trade.SenderName = cf.GetFirstName(senderId);
-            trade.ReceiverName = cf.GetFirstName(receiverId);
-            trade.receiverInventory = receiverInv;
             trades.Add(trade);
             var chat = new CommonFunctions(config).GetPrivateChat(senderId);
 
@@ -206,27 +210,84 @@ namespace TeleBreadService
 
         private void Trade2(ChatListener listener, List<ChatListener> listeners, List<Trade> trades)
         {
-            if (e.CallbackQuery.Data == "Cancel")
-            {
-                listeners.Remove(listener);
-                return;
-            }
-
+            
+            
             foreach (var trade in trades)
             {
                 if (trade.SenderId == e.CallbackQuery.From.Id)
                 {
+                    if (e.CallbackQuery.Data == "Cancel")
+                    {
+                        listeners.Remove(listener);
+                        trades.Remove(trade);
+                        return;
+                    }
                     var privateChat = new CommonFunctions(config).GetPrivateChat(e.CallbackQuery.From.Id);
                     trade.ReceiveItem = e.CallbackQuery.Data;
                     listeners.Remove(listener);
                     var mId = botClient
-                        .SendTextMessageAsync(privateChat, $"Please reply with the Quantity of {trade.SendItem} you would like to receive. (Max: {trade.senderInventory[trade.ReceiveItem]})")
+                        .SendTextMessageAsync(privateChat, $"Please reply with the Quantity of {trade.ReceiveItem} you would like to receive. (Max: {trade.receiverInventory[trade.ReceiveItem]})")
                         .Result.MessageId;
                     listeners.Add(
                         new ChatListener(e.CallbackQuery.From.Id, "Text", $"TradeSendQty,{privateChat},{mId}"));
                 }
             }
             
+        }
+
+        private void Trade3(ChatListener listener, List<ChatListener> listeners, List<Trade> trades)
+        {
+            foreach (var trade in trades)
+            {
+                if (trade.ReceiverId == e.CallbackQuery.From.Id)
+                {
+                    var privateChat = new CommonFunctions(config).GetPrivateChat(e.CallbackQuery.From.Id);
+                    var otherPrivate = new CommonFunctions(config).GetPrivateChat(trade.SenderId);
+                    if (e.CallbackQuery.Data == "Decline")
+                    {
+                        listeners.Remove(listener);
+                        trades.Remove(trade);
+                        botClient.SendTextMessageAsync(privateChat, "You have declined the trade.");
+                        botClient.SendTextMessageAsync(otherPrivate, $"{trade.SenderName} has declined the trade.");
+                        return;
+                    }
+                    trade.SendItem = e.CallbackQuery.Data;
+                    listeners.Remove(listener);
+                    var mId = botClient
+                        .SendTextMessageAsync(privateChat, $"Please reply with the Quantity of {trade.SendItem} you would like to receive. (Max: {trade.senderInventory[trade.SendItem]})")
+                        .Result.MessageId;
+                    listeners.Add(
+                        new ChatListener(e.CallbackQuery.From.Id, "Text", $"TradeRecQty,{privateChat},{mId}"));
+                }
+            }
+        }
+
+        private void Trade4(ChatListener listener, List<ChatListener> listeners, List<Trade> trades)
+        {
+            foreach (var trade in trades)
+            {
+                if (trade.SenderId == e.CallbackQuery.From.Id)
+                {
+                    var cf = new CommonFunctions(config);
+                    if (e.CallbackQuery.Data == "Decline")
+                    {
+                        var senderPrivate = cf.GetPrivateChat(trade.SenderId);
+                        var receiverPrivate = cf.GetPrivateChat(trade.ReceiverId);
+                        botClient.SendTextMessageAsync(senderPrivate, "You have declined the trade.");
+                        botClient.SendTextMessageAsync(receiverPrivate,
+                            $"The trade was declined by {trade.SenderName}");
+                        listeners.Remove(listener);
+                        trades.Remove(trade);
+                        return;
+                    } else if (e.CallbackQuery.Data == "Accept")
+                    {
+                        trade.completeTrade(botClient);
+                        listeners.Remove(listener);
+                        trades.Remove(trade);
+                        return;
+                    }
+                }
+            }
         }
         
         public async void  sendCat(long chatId, string imgType)

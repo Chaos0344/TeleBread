@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
 using Telegram.Bot;
 
 namespace TeleBreadService.General
@@ -23,6 +25,32 @@ namespace TeleBreadService.General
             Config = config;
             SenderId = sender;
             ReceiverId = receiver;
+            var cf = new CommonFunctions(Config);
+
+            SenderName = cf.GetFirstName(SenderId);
+            ReceiverName = cf.GetFirstName(ReceiverId);
+
+            senderInventory = new Dictionary<string, int>();
+            receiverInventory = new Dictionary<string, int>();
+
+            DataTable dt =
+                cf.RunQuery(
+                    $"SELECT b.ItemName, a.quantity " +
+                    $"FROM Inventory a JOIN Items b ON a.ItemID = b.ItemID WHERE a.userID = {SenderId}",
+                    new[] {"ItemName", "Qty"});
+            foreach (DataRow row in dt.Rows)
+            {
+                senderInventory[row["ItemName"].ToString()] = Int32.Parse(row["Qty"].ToString());
+            }
+            DataTable dr =
+                cf.RunQuery(
+                    $"SELECT b.ItemName, a.quantity " +
+                    $"FROM Inventory a JOIN Items b ON a.ItemID = b.ItemID WHERE a.userID = {ReceiverId}",
+                    new[] {"ItemName", "Qty"});
+            foreach (DataRow row in dr.Rows)
+            {
+                receiverInventory[row["ItemName"].ToString()] = Int32.Parse(row["Qty"].ToString());
+            }
         }
 
         public void SetSendItem(string item)
@@ -71,8 +99,8 @@ namespace TeleBreadService.General
 
             var senderChat = cf.GetPrivateChat(SenderId);
             var receiverChat = cf.GetPrivateChat(ReceiverId);
-            botClient.SendTextMessageAsync(senderChat, "Trade accepted and completed!");
-            botClient.SendTextMessageAsync(receiverChat, "Trade accepted and completed!");
+            botClient.SendTextMessageAsync(senderChat, $"Trade accepted and completed! You have received {ReceiveQty} {ReceiveItem}.");
+            botClient.SendTextMessageAsync(receiverChat, $"Trade accepted and completed! You have received {SendQty} {SendItem}.");
         }
         
     }
