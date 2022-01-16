@@ -248,7 +248,7 @@ namespace TeleBreadService
                         listeners.Remove(listener);
                         trades.Remove(trade);
                         botClient.SendTextMessageAsync(privateChat, "You have declined the trade.");
-                        botClient.SendTextMessageAsync(otherPrivate, $"{trade.SenderName} has declined the trade.");
+                        botClient.SendTextMessageAsync(otherPrivate, $"{trade.ReceiverName} has declined the trade.");
                         return;
                     }
                     trade.SendItem = e.CallbackQuery.Data;

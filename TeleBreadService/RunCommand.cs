@@ -97,11 +97,11 @@ namespace TeleBreadService
                             trade.ReceiveQty = tradeQty;
                             var otherPrivate = cf.GetPrivateChat(trade.ReceiverId);
                             var buttons = new List<List<InlineKeyboardButton>>();
-                            foreach (var key in trade.receiverInventory.Keys)
+                            foreach (var key in trade.senderInventory.Keys)
                             {
                                 buttons.Add(new List<InlineKeyboardButton>()
                                 {
-                                    new InlineKeyboardButton($"{key}. Available: {trade.receiverInventory[key]}")
+                                    new InlineKeyboardButton($"{key}. Available: {trade.senderInventory[key]}")
                                     {
                                         CallbackData = key
                                     }
