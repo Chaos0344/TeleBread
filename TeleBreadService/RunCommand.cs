@@ -228,6 +228,12 @@ namespace TeleBreadService
                     new Bread().shop(botClient, e, config, listeners);
                     return;
                 }
+
+                if (messageText != null && messageText.ToLower() == "/test/")
+                {
+                    c.Odds(botClient, e);
+                    return;
+                }
             }
 
             try
