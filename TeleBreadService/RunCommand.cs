@@ -229,7 +229,7 @@ namespace TeleBreadService
                     return;
                 }
 
-                if (messageText != null && messageText.ToLower() == "/test/")
+                if (messageText != null && messageText.ToLower() == "/odds")
                 {
                     c.Odds(botClient, e);
                     return;
