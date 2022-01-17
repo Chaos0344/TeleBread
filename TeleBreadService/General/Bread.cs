@@ -130,7 +130,7 @@ namespace TeleBreadService.General
                     CallbackData = "Cancel"
                 }
             });
-            var msgId = botClient.SendTextMessageAsync(e.Message.Chat.Id, "Test box:",
+            var msgId = botClient.SendTextMessageAsync(e.Message.Chat.Id, "Please make a selection:",
                 replyMarkup: new InlineKeyboardMarkup(buttons)).Result.MessageId;
             listeners.Add(new ChatListener(e.Message.From.Id, "Callback", $"Shop,{msgId},{e.Message.Chat.Id}"));
         }

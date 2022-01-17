@@ -101,6 +101,13 @@ namespace TeleBreadService
             await botClient.SendTextMessageAsync(chatId, e.Message.Text.Split('|')[1]);
         }
 
+        public async void Odds(ITelegramBotClient botClient, Update e)
+        {
+            var cf = new CommonFunctions(Config);
+            var odds = cf.ServiceStatus("ItemChance", e.Message.Chat.Id);
+            await botClient.SendTextMessageAsync(e.Message.Chat.Id, $"The odd are currently 1 in {odds}.");
+        }
+
         public async void Boobs(ITelegramBotClient botClient, Update e)
         {
             await botClient.SendTextMessageAsync(chatId: e.Message.Chat, text: "Lol nice",

@@ -346,6 +346,31 @@ namespace TeleBreadService
                            $"SET messages = {msgs} " +
                            $"WHERE userID = {userId} " +
                            $"AND groupChat = {chatId}");
+
+                if (e.Message.Chat.Id == cf.GetGroupChat(userId))
+                {
+                    var ItemChance = cf.ServiceStatus("ItemChance", e.Message.Chat.Id);
+                    var rand = new Random();
+                    int findItem = rand.Next(1, ItemChance);
+                    if (findItem == 1)
+                    {
+                        var whatItem = rand.Next(1, 5);
+                        cf.WriteQuery($"UPDATE dbo.Services SET Status = 1000 " +
+                                      $"WHERE Service = 'ItemChance' AND groupChat = {chatId}");
+                        var dt = cf.RunQuery($"SELECT ItemName from dbo.Items where ItemID = " +
+                                             $"{whatItem}", new []{"ItemName"});
+                        var item = dt.Rows[0]["ItemName"].ToString();
+                        botClient.SendTextMessageAsync(chatId,
+                            $"{e.Message.From.FirstName} found a(n) {item}. How lucky!");
+                        cf.AddToInventory(item, 1, userId);
+                    }
+                    else
+                    {
+                        ItemChance--;
+                        cf.WriteQuery($"UPDATE dbo.Services SET Status = {ItemChance} " +
+                                      $"WHERE Service = 'ItemChance' AND groupChat = {chatId}");
+                    }
+                }
             }
         }
     }
