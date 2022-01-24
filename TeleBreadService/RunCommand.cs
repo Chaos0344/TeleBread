@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using TeleBreadService.General;
 using TeleBreadService.Items;
@@ -235,6 +236,15 @@ namespace TeleBreadService
                     c.Odds(botClient, e);
                     return;
                 }
+            }
+            
+            // Snap skip
+            DataTable snaps = cf.RunQuery(
+                $"SELECT groupChat, ExpirationDate FROM dbo.Snaps WHERE groupChat = {chatId} " +
+                $"AND ExpirationDate > '{DateTime.Now}'", new[] {"GC", "ED"});
+            if (snaps.Rows.Count > 0)
+            {
+                return;
             }
 
             // Can be used in group chats by Presidents

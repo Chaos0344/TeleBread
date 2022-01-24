@@ -33,10 +33,15 @@ namespace TeleBreadService.Items
                 string returnedItem = row["ItemName"].ToString();
                 if (quantity > 0 && returnedItem.ToLower() == item)
                 {
-                    if (item == "orb")
+                    switch (item)
                     {
-                        UseOrb(e, l);
-                        return;
+                        case "orb":
+                            UseOrb(e, l);
+                            break;
+                        case "Infinity Gauntlet":
+                            botClient.SendTextMessageAsync(e.Message.Chat.Id,
+                                "The power surges through you. The urge to /snap is strong...");
+                            break;
                     }
                     // TODO: Add additional items here
                 }
@@ -45,6 +50,25 @@ namespace TeleBreadService.Items
             botClient.SendTextMessageAsync(e.Message.Chat.Id, $"You aren't holding any {item}");
         }
 
+        public async void Snap(ITelegramBotClient botClient, Update e)
+        {
+            var chatId = e.Message.Chat.Id;
+            var userId = e.Message.From.Id;
+            int inv = cf.CheckInventory("Infinity Gauntlet", userId);
+            if (inv < 1)
+            {
+                await botClient.SendTextMessageAsync(chatId, "You don't have one of those...");
+                return;
+            }
+
+            cf.AddToInventory("Infinity Gauntlet", -1, userId);
+            await botClient.SendTextMessageAsync(chatId, "As you snap a silence falls across the world. " +
+                                                   "A scream is heard in the distance. TeleBreadBot looks scared as " +
+                                                   "it fades to dust..");
+            cf.WriteQuery($"INSERT INTO dbo.Snaps (groupChat, ExpirationDate) " +
+                          $"VALUES ({e.Message.Chat.Id}, '{DateTime.Now.AddMinutes(10)}')");
+        }
+        
         private async void UseOrb(Update e, List<ChatListener> listeners)
         {
             try
