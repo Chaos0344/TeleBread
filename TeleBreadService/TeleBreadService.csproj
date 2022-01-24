@@ -78,6 +78,7 @@
     <Compile Include="General\Event.cs" />
     <Compile Include="General\Payroll.cs" />
     <Compile Include="General\Poll.cs" />
+    <Compile Include="General\PositionFunctions.cs" />
     <Compile Include="General\Trade.cs" />
     <Compile Include="Items\UseItem.cs" />
     <Compile Include="Objects\OrbPredictions.cs" />

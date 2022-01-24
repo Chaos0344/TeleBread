@@ -29,6 +29,7 @@ namespace TeleBreadService
             var userId = e.Message.From.Id;
             var c = new Commands(config);
             var cf = new CommonFunctions(config);
+            var pf = new PositionFunctions(config);
             var p = predictions;
             int maintenance = 0;
             try
@@ -233,6 +234,16 @@ namespace TeleBreadService
                 {
                     c.Odds(botClient, e);
                     return;
+                }
+            }
+
+            // Can be used in group chats by Presidents
+            if (cf.CheckPosition(cf.GetGroupChat(userId), userId, "President")
+                && cf.GetGroupChat(userId) == chatId)
+            {
+                if (messageText != null && messageText.ToLower() == "/stimulus")
+                {
+                    pf.Stimulus(botClient, e);
                 }
             }
 
