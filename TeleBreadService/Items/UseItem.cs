@@ -24,6 +24,7 @@ namespace TeleBreadService.Items
         {
             config = c;
             botClient = bc;
+            cf = new CommonFunctions(config);
         }
 
         public UseItem(ITelegramBotClient bc, Update e, List<ChatListener> l, Dictionary<string, string> c)
