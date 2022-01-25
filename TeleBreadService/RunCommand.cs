@@ -316,7 +316,7 @@ namespace TeleBreadService
 
                     if (messageText != null && messageText.ToLower() == "/snap")
                     {
-                        _ = new UseItem(botClient, e, listeners, config);
+                        new UseItem(botClient, config).Snap(e);
                     }
                     if (messageText != null && messageText.ToLower().Contains("/use"))
                     {

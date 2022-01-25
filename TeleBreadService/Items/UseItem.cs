@@ -15,6 +15,17 @@ namespace TeleBreadService.Items
         private General.CommonFunctions cf { get; set; }
         private ITelegramBotClient botClient { get; set; }
 
+        /// <summary>
+        /// Set-up Use Item to use a sub command. Rare use-case
+        /// </summary>
+        /// <param name="bc">botClient</param>
+        /// <param name="c">config</param>
+        public UseItem(ITelegramBotClient bc, Dictionary<string, string> c)
+        {
+            config = c;
+            botClient = bc;
+        }
+
         public UseItem(ITelegramBotClient bc, Update e, List<ChatListener> l, Dictionary<string, string> c)
         {
             config = c;
@@ -52,7 +63,7 @@ namespace TeleBreadService.Items
             botClient.SendTextMessageAsync(e.Message.Chat.Id, $"You aren't holding any {item}");
         }
 
-        public async void Snap(ITelegramBotClient botClient, Update e)
+        public async void Snap(Update e)
         {
             var chatId = e.Message.Chat.Id;
             var userId = e.Message.From.Id;
