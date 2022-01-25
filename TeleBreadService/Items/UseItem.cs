@@ -43,6 +43,8 @@ namespace TeleBreadService.Items
                                 "The power surges through you. The urge to /snap is strong...");
                             break;
                     }
+
+                    return;
                     // TODO: Add additional items here
                 }
             }
@@ -57,7 +59,7 @@ namespace TeleBreadService.Items
             int inv = cf.CheckInventory("Infinity Gauntlet", userId);
             if (inv < 1)
             {
-                await botClient.SendTextMessageAsync(chatId, "You don't have one of those...");
+                await botClient.SendTextMessageAsync(chatId, "You snap while humming a little tune.");
                 return;
             }
 
