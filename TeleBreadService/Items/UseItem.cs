@@ -38,7 +38,7 @@ namespace TeleBreadService.Items
                         case "orb":
                             UseOrb(e, l);
                             break;
-                        case "Infinity Gauntlet":
+                        case "infinity gauntlet":
                             botClient.SendTextMessageAsync(e.Message.Chat.Id,
                                 "The power surges through you. The urge to /snap is strong...");
                             break;
