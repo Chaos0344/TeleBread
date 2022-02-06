@@ -125,7 +125,7 @@ namespace TeleBreadService
             }
 
             DataTable dt = c.RunQuery("SELECT TOP 1 foodName from dbo.food order by NEWID()", new[] { "FoodName" });
-            string foodName = dt.Rows[0]["FoodName"].ToString();
+            string foodName = dt.Rows[0]["FoodName"].ToString().Replace("\"", "");
             await botClient.SendTextMessageAsync(e.Message.Chat.Id, $"{e.Message.From.FirstName} licked {foodName.ToLower()}.\nBon appétit!");
             
             if (foodName.ToLower().Contains("bread"))
