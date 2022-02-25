@@ -25,7 +25,6 @@
 /Users/blakeroetzel/Library/Mobile Documents/com~apple~CloudDocs/Dev/TeleBread/TeleBreadService/obj/Debug/TeleBreadService.csproj.CopyComplete
 /Users/blakeroetzel/Library/Mobile Documents/com~apple~CloudDocs/Dev/TeleBread/TeleBreadService/obj/Debug/TeleBreadService.exe
 /Users/blakeroetzel/Library/Mobile Documents/com~apple~CloudDocs/Dev/TeleBread/TeleBreadService/obj/Debug/TeleBreadService.pdb
-C:\dev\TeleBread\TeleBreadService\obj\Debug\TeleBreadService.csproj.AssemblyReference.cache
 C:\dev\TeleBread\TeleBreadService\obj\Debug\TeleBreadService.ProjectInstaller.resources
 C:\dev\TeleBread\TeleBreadService\obj\Debug\TeleBreadService.csproj.GenerateResource.cache
 C:\dev\TeleBread\TeleBreadService\obj\Debug\TeleBreadService.csproj.CoreCompileInputs.cache
@@ -51,3 +50,4 @@ C:\dev\TeleBread\TeleBreadService\bin\Debug\Telegram.Bot.xml
 C:\dev\TeleBread\TeleBreadService\bin\Debug\Telegram.Bot.Extensions.Polling.pdb
 C:\dev\TeleBread\TeleBreadService\bin\Debug\Telegram.Bot.Extensions.Polling.xml
 C:\dev\TeleBread\TeleBreadService\obj\Debug\TeleBreadService.csproj.CopyComplete
+C:\Dev\TeleBread\TeleBreadService\obj\Debug\TeleBreadService.csprojAssemblyReference.cache

@@ -367,6 +367,10 @@ namespace TeleBreadService
             {
                 c.GroupChat(botClient, e);
                 return;
+            } else if (messageText != null && messageText.ToLower().Contains("/support"))
+            {
+                c.Support(botClient, e);
+                return;
             }
 
             if (cf.UserInDatabase(userId))

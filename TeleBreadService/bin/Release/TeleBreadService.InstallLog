@@ -1,0 +1,13 @@
+﻿Installing assembly 'C:\Dev\TeleBread\TeleBreadService\bin\Release\TeleBreadService.exe'.
+Affected parameters are:
+   logtoconsole = 
+   logfile = C:\Dev\TeleBread\TeleBreadService\bin\Release\TeleBreadService.InstallLog
+   assemblypath = C:\Dev\TeleBread\TeleBreadService\bin\Release\TeleBreadService.exe
+Installing service TeleBread.Service...
+Service TeleBread.Service has been successfully installed.
+Creating EventLog source TeleBread.Service in log Application...
+Committing assembly 'C:\Dev\TeleBread\TeleBreadService\bin\Release\TeleBreadService.exe'.
+Affected parameters are:
+   logtoconsole = 
+   logfile = C:\Dev\TeleBread\TeleBreadService\bin\Release\TeleBreadService.InstallLog
+   assemblypath = C:\Dev\TeleBread\TeleBreadService\bin\Release\TeleBreadService.exe

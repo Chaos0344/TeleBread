@@ -173,6 +173,15 @@ namespace TeleBreadService
             }
         }
 
+
+        public async void Support(ITelegramBotClient botClient, Update e)
+        {
+            var request = e.Message.Text.Replace("/support", "");
+            CommonFunctions cf = new CommonFunctions(Config);
+            cf.WriteQuery($"INSERT INTO dbo.TICKETS (UserID, [Date], Request) VALUES ({e.Message.From.Id}, '{DateTime.Now}','{request}')");
+            await botClient.SendTextMessageAsync(e.Message.Chat, "Your support ticket has been submitted.");
+        }
+
         /// <summary>
         /// Inventory command allows users to check their inventory and see item descriptions if they are holding that item.
         /// </summary>
