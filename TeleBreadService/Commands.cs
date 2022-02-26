@@ -203,6 +203,8 @@ namespace TeleBreadService
 
             var user = long.Parse(dt.Rows[0]["UserID"].ToString());
             var request = dt.Rows[0]["Request"].ToString();
+
+            var un = cf.GetFirstName(user);
             
             cf.WriteQuery($"UPDATE dbo.Tickets set Resolved = 1, Resolution = '{resolution}' where TicketID = {rID}");
 
@@ -210,7 +212,7 @@ namespace TeleBreadService
             if (gc != 0)
             {
                 botClient.SendTextMessageAsync(gc,
-                    $"*Attention (tg://user?id={user})*\nYour support ticket \"{request}\"  has been resolved with resolution: {resolution}", ParseMode.MarkdownV2);
+                    $"*Attention [{un}](tg://user?id={user})*\nYour support ticket \"{request}\"  has been resolved with resolution: {resolution}", ParseMode.MarkdownV2);
             }
         }
 
