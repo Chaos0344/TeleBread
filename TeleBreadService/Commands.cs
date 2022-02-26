@@ -210,7 +210,7 @@ namespace TeleBreadService
             if (gc != 0)
             {
                 botClient.SendTextMessageAsync(gc,
-                    $"Your support ticket \"{request}\"  has been resolved with resolution: {resolution}");
+                    $"*Attention (tg://user?id={user})*\nYour support ticket \"{request}\"  has been resolved with resolution: {resolution}", ParseMode.MarkdownV2);
             }
         }
 
