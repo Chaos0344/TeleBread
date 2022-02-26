@@ -233,7 +233,8 @@ namespace TeleBreadService
                 {
                     //_ = new Payroll(botClient, config);
                     //cf.AddToInventory("Orb", 1, e.Message.From.Id);
-                    new Bread().shop(botClient, e, config, listeners);
+                    botClient.SendTextMessageAsync(e.Message.Chat, "[inline url](http://www.google.com) this is a test",
+                        ParseMode.MarkdownV2);
                     return;
                 }
 
