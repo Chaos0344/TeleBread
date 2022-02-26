@@ -204,6 +204,14 @@ namespace TeleBreadService
             var user = long.Parse(dt.Rows[0]["UserID"].ToString());
             var request = dt.Rows[0]["Request"].ToString();
 
+            char[] escapeThem = new[]
+                {'_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'};
+
+            foreach (var esc in escapeThem)
+            {
+                request = request.Replace($"{esc}", $"\\{esc}");
+            }
+
             var un = cf.GetFirstName(user);
             
             cf.WriteQuery($"UPDATE dbo.Tickets set Resolved = 1, Resolution = '{resolution}' where TicketID = {rID}");
@@ -211,9 +219,11 @@ namespace TeleBreadService
             long gc = cf.GetGroupChat(user);
             if (gc != 0)
             {
-                botClient.SendTextMessageAsync(gc,
+                await botClient.SendTextMessageAsync(gc,
                     $"*Attention [{un}](tg://user?id={user})*\nYour support ticket \"{request}\"  has been resolved with resolution: {resolution}", ParseMode.MarkdownV2);
             }
+
+            return;
         }
 
         /// <summary>
