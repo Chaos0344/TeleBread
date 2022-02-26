@@ -173,13 +173,45 @@ namespace TeleBreadService
             }
         }
 
-
+        /// <summary>
+        /// Inserts a support ticket into the database
+        /// </summary>
+        /// <param name="botClient"></param>
+        /// <param name="e"></param>
         public async void Support(ITelegramBotClient botClient, Update e)
         {
             var request = e.Message.Text.Replace("/support", "");
+            request = request.Replace("'", "");
+            request = request.Replace("@", "");
             CommonFunctions cf = new CommonFunctions(Config);
             cf.WriteQuery($"INSERT INTO dbo.TICKETS (UserID, [Date], Request) VALUES ({e.Message.From.Id}, '{DateTime.Now}','{request}')");
             await botClient.SendTextMessageAsync(e.Message.Chat, "Your support ticket has been submitted.");
+        }
+
+        public async void Resolve(ITelegramBotClient botClient, Update e)
+        {
+            int rID = Int32.Parse(e.Message.Text.Replace("/resolve ", "").Split(' ')[0]);
+            string resolution = e.Message.Text.Replace($"/resolve {rID} ", "");
+            var cf = new CommonFunctions(Config);
+            var dt = cf.RunQuery($"SELECT UserID, Request from dbo.Tickets where TicketID = {rID}",
+                new[] {"UserID", "Request"});
+            if (dt.Rows.Count < 1)
+            {
+                await botClient.SendTextMessageAsync(e.Message.Chat, "Request not found");
+                return;
+            }
+
+            var user = long.Parse(dt.Rows[0]["UserID"].ToString());
+            var request = dt.Rows[0]["Request"].ToString();
+            
+            cf.WriteQuery($"UPDATE dbo.Tickets set Resolved = 1, Resolution = '{resolution}' where TicketID = {rID}");
+
+            long gc = cf.GetGroupChat(user);
+            if (gc != 0)
+            {
+                botClient.SendTextMessageAsync(gc,
+                    $"Your support ticket \"{request}\"  has been resolved with resolution: {resolution}");
+            }
         }
 
         /// <summary>

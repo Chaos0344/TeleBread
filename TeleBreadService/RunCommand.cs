@@ -212,6 +212,12 @@ namespace TeleBreadService
                     c.Say(botClient, e);
                     return;
                 }
+
+                if (messageText != null && messageText.ToLower().Contains("/resolve"))
+                {
+                    c.Resolve(botClient, e);
+                    return;
+                }
             }
 
             // Can be used in group chat by Admins
