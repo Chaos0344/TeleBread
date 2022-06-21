@@ -50,4 +50,4 @@ C:\dev\TeleBread\TeleBreadService\obj\Release\TeleBreadService.csproj.CoreCompil
 C:\dev\TeleBread\TeleBreadService\obj\Release\TeleBreadService.csproj.CopyComplete
 C:\dev\TeleBread\TeleBreadService\obj\Release\TeleBreadService.exe
 C:\dev\TeleBread\TeleBreadService\obj\Release\TeleBreadService.pdb
-C:\Dev\TeleBread\TeleBreadService\obj\Release\TeleBreadService.csprojAssemblyReference.cache
+C:\dev\TeleBread\TeleBreadService\obj\Release\TeleBreadService.csproj.AssemblyReference.cache

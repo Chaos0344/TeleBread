@@ -51,6 +51,10 @@ namespace TeleBreadService
                     switch (listener.subtype.Split(',')[0])
                     {
                         case "OrbText":
+                            if (e.Message.Text.ToLower().Contains("/use orb"))
+                            {
+                                break;
+                            }
                             OrbPredictions prediction = listener.predictionHolder;
                             prediction.AddText(e.Message.Text);
                             prediction.SaveToDB();
@@ -197,7 +201,7 @@ namespace TeleBreadService
             }
 
             // Out of context commands
-            if (messageText != null && messageText.ToLower().Contains("boobs"))
+            if (messageText != null && messageText.ToLower().Contains("boob"))
             {
                 c.Boobs(botClient, e);
 

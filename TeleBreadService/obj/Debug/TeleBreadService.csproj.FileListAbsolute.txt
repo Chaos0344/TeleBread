@@ -50,4 +50,4 @@ C:\dev\TeleBread\TeleBreadService\bin\Debug\Telegram.Bot.xml
 C:\dev\TeleBread\TeleBreadService\bin\Debug\Telegram.Bot.Extensions.Polling.pdb
 C:\dev\TeleBread\TeleBreadService\bin\Debug\Telegram.Bot.Extensions.Polling.xml
 C:\dev\TeleBread\TeleBreadService\obj\Debug\TeleBreadService.csproj.CopyComplete
-C:\Dev\TeleBread\TeleBreadService\obj\Debug\TeleBreadService.csprojAssemblyReference.cache
+C:\dev\TeleBread\TeleBreadService\obj\Debug\TeleBreadService.csproj.AssemblyReference.cache
