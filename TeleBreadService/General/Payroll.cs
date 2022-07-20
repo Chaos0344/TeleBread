@@ -73,7 +73,7 @@ namespace TeleBreadService.General
                 }
                 var users = GetUsers(chat);
                 var members = QueryMembers(chat);
-                var budget = members * 5;
+                var budget = members * 2;
                 var totalMessages = TotalMessages(chat);
                 if (totalMessages == 0)
                 {
