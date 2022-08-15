@@ -374,7 +374,11 @@ namespace TeleBreadService
         public void Purgestone(ChatListener listener, List<ChatListener> listeners, List<Purgestone> purgestones)
         {
             var badge = e.CallbackQuery.Data;
+            var groupChat = cf.GetGroupChat(listener.target);
             cf.WriteQuery($"DELETE FROM Badges WHERE badge = '{badge}' and userID = {listener.target}");
+            botClient.SendTextMessageAsync(groupChat,
+                $"The Purgestone lets off an ominous glow as the burden of \"{badge}\" is lifted from {cf.GetFirstName(listener.target)}.");
+            listeners.Remove(listener);
         }
     }
 }
