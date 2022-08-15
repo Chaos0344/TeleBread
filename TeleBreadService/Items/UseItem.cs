@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Security;
 using TeleBreadService.General;
+using TeleBreadService.Objects;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -53,6 +54,10 @@ namespace TeleBreadService.Items
                         case "infinity gauntlet":
                             botClient.SendTextMessageAsync(e.Message.Chat.Id,
                                 "The power surges through you. The urge to /snap is strong...");
+                            break;
+                        case "purgestone":
+                            Purgestone ps = new Purgestone(userId, c);
+                            ps.listBadges(botClient, e, l);
                             break;
                     }
 

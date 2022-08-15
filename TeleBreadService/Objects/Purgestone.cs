@@ -44,8 +44,10 @@ namespace TeleBreadService.Objects
             
             var msgId = botClient.SendTextMessageAsync(privateChatId, "Select the badge you want to remove:",
                 replyMarkup: new InlineKeyboardMarkup(buttons)).Result.MessageId;
+
+            var pvt = cf.GetPrivateChat(e.Message.From.Id);
             
-            listeners.Add(new ChatListener(userID, "Callback", $"Purgestone,{msgId},{e.Message.Chat.Id}"));
+            listeners.Add(new ChatListener(userID, "Callback", $"Purgestone,{msgId},{pvt}"));
         }
         
         

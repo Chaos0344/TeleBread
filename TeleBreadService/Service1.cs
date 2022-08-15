@@ -22,8 +22,8 @@ namespace TeleBreadService
         {
             InitializeComponent();
         }
-        //private static string _local = "/Users/blakeroetzel/Documents/Dev/TeleBreadService/.local/";
-        private string _local = "C:/dev/TeleBread/.local/";
+        private static string _local = "/Users/blakeroetzel/Documents/Dev/TeleBreadService/.local/";
+        //private string _local = "C:/dev/TeleBread/.local/";
 
         private static readonly Dictionary<string, string> _config = new Dictionary<string, string>();
       
