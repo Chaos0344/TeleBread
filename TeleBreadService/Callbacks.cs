@@ -23,7 +23,8 @@ namespace TeleBreadService
         private Update e { get; set; }
         private CommonFunctions cf { get; set; }
 
-        public Callbacks(ITelegramBotClient bC, Update u, Dictionary<string, string> c, ChatListener listener, List<ChatListener> listeners, List<Trade> trades)
+        public Callbacks(ITelegramBotClient bC, Update u, Dictionary<string, string> c, ChatListener listener,
+            List<ChatListener> listeners, List<Trade> trades, List<Purgestone> purgestones)
         {
             config = c;
             botClient = bC;
@@ -53,6 +54,9 @@ namespace TeleBreadService
                     break;
                 case "Trade4":
                     Trade4(listener, listeners, trades);
+                    break;
+                case "Purgestone":
+                    Purgestone(listener, listeners, purgestones);
                     break;
             }
         }
@@ -138,7 +142,6 @@ namespace TeleBreadService
             }
 
         }
-        
 
         private void Orb(ChatListener listener, List<ChatListener> listeners) {
             listeners.Remove(listener);
@@ -367,6 +370,11 @@ namespace TeleBreadService
                 }
             }
         }
-            
+
+        public void Purgestone(ChatListener listener, List<ChatListener> listeners, List<Purgestone> purgestones)
+        {
+            var badge = e.CallbackQuery.Data;
+            cf.WriteQuery($"DELETE FROM Badges WHERE badge = '{badge}' and userID = {listener.target}");
+        }
     }
 }

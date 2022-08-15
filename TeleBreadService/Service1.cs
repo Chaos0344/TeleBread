@@ -36,6 +36,7 @@ namespace TeleBreadService
         private List<ChatListener> _listeners = new List<ChatListener>();
         private List<Poll> _polls = new List<Poll>();
         private List<Trade> _trades = new List<Trade>();
+        private List<Purgestone> _purgestones = new List<Purgestone>();
         
 
         /// <summary>
@@ -83,7 +84,7 @@ namespace TeleBreadService
                 {
                     if (listener.target == update.CallbackQuery.From.Id && listener.type == "Callback")
                     {
-                        _ = new Callbacks(botClient, update, _config, listener, _listeners, _trades);
+                        _ = new Callbacks(botClient, update, _config, listener, _listeners, _trades, _purgestones);
                         return;
                     }
                 }
@@ -117,7 +118,7 @@ namespace TeleBreadService
 
             if (update.Message!.Type == MessageType.Text)
             {
-                _ = new RunCommand(botClient, update, _config, _predictionsList, _listeners, _polls, _trades);
+                _ = new RunCommand(botClient, update, _config, _predictionsList, _listeners, _polls, _trades, _purgestones);
             }
         }
 

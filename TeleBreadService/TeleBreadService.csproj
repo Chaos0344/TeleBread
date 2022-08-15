@@ -83,6 +83,7 @@
     <Compile Include="General\Trade.cs" />
     <Compile Include="Items\UseItem.cs" />
     <Compile Include="Objects\OrbPredictions.cs" />
+    <Compile Include="Objects\Purgestone.cs" />
     <Compile Include="PollHandler.cs" />
     <Compile Include="ProjectInstaller.cs">
       <SubType>Component</SubType>

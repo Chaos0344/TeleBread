@@ -23,7 +23,8 @@ namespace TeleBreadService
         }
         
         public RunCommand(ITelegramBotClient botClient, Update e, 
-            Dictionary<string, string> config, List<OrbPredictions> predictions, List<ChatListener> listeners, List<Poll> polls, List<Trade> trades)
+            Dictionary<string, string> config, List<OrbPredictions> predictions, 
+            List<ChatListener> listeners, List<Poll> polls, List<Trade> trades, List<Purgestone> purgestones)
         {
             var chatId = e.Message.Chat.Id;
             var messageText = e.Message.Text;
@@ -237,8 +238,9 @@ namespace TeleBreadService
                 {
                     //_ = new Payroll(botClient, config);
                     //cf.AddToInventory("Orb", 1, e.Message.From.Id);
-                    botClient.SendTextMessageAsync(e.Message.Chat, "[inline user](tg://user?id=1248677935) this is a test",
-                        ParseMode.MarkdownV2);
+                    //botClient.SendTextMessageAsync(e.Message.Chat, "[inline user](tg://user?id=1248677935) this is a test", ParseMode.MarkdownV2);
+                    Purgestone ps = new Purgestone(e.Message.From.Id, config);
+                    ps.listBadges(botClient, e, listeners);
                     return;
                 }
 
@@ -268,6 +270,7 @@ namespace TeleBreadService
                 }
             }
 
+            // Check for Maintenance Mode
             try
             {
                 if (e.Message.Entities != null && maintenance == 1 && e.Message.Entities.Length > 0)
@@ -384,6 +387,7 @@ namespace TeleBreadService
                 return;
             }
 
+            // Add to Timesheet
             if (cf.UserInDatabase(userId))
             {
                 int msgs = cf.GetTimesheet(userId, chatId);
