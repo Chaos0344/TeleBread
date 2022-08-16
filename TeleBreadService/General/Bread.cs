@@ -105,20 +105,20 @@ namespace TeleBreadService.General
             });
             buttons.Add(new List<InlineKeyboardButton>()
             {
-                new InlineKeyboardButton("Orb (5)")
+                new InlineKeyboardButton("Orb (10)")
                 {
                     CallbackData = "Orb"
-                }, new InlineKeyboardButton("Inf. Gaunt (10)")
+                }, new InlineKeyboardButton("Inf. Gaunt (20)")
                 {
                     CallbackData = "InfGaunt"
                 }
             });
             buttons.Add(new List<InlineKeyboardButton>()
             {
-                new InlineKeyboardButton("Ring (10)")
+                new InlineKeyboardButton("Ring (20)")
                 {
                     CallbackData = "Ring"
-                }, new InlineKeyboardButton("Purgestone (15)")
+                }, new InlineKeyboardButton("Purgestone (40)")
                 {
                     CallbackData = "Purge"
                 }

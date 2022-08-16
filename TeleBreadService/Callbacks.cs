@@ -93,19 +93,19 @@ namespace TeleBreadService
                     price = 3;
                     break;
                 case "Orb":
-                    price = 5;
+                    price = 10;
                     item = "Orb";
                     break;
                 case "InfGaunt":
-                    price = 10;
+                    price = 20;
                     item = "Infinity Gauntlet";
                     break;
                 case "Ring":
-                    price = 10;
+                    price = 20;
                     item = "Ring";
                     break;
                 case "Purge":
-                    price = 15;
+                    price = 40;
                     item = "Purgestone";
                     break;
             }
