@@ -13,8 +13,6 @@ using Poll = TeleBreadService.General.Poll;
 
 namespace TeleBreadService
 {
-    
-    
     public class RunCommand
     {
         private async void delMsg(ITelegramBotClient botClient, long delchat, int oldMsg)
@@ -24,7 +22,7 @@ namespace TeleBreadService
         
         public RunCommand(ITelegramBotClient botClient, Update e, 
             Dictionary<string, string> config, List<OrbPredictions> predictions, 
-            List<ChatListener> listeners, List<Poll> polls, List<Trade> trades, List<Purgestone> purgestones)
+            List<ChatListener> listeners, List<Poll> polls, List<Trade> trades)
         {
             var chatId = e.Message.Chat.Id;
             var messageText = e.Message.Text;
@@ -205,7 +203,14 @@ namespace TeleBreadService
             if (messageText != null && messageText.ToLower().Contains("boob"))
             {
                 c.Boobs(botClient, e);
+            } else if (messageText != null && messageText.ToLower().Contains("69"))
+            {
+                c.Boobs(botClient, e);
+            }
 
+            if (messageText != null && messageText.ToLower().Contains("420"))
+            {
+                botClient.SendTextMessageAsync(e.Message.From.Id, "Blaze it!", replyToMessageId: e.Message.MessageId);
             }
 
             // Can be used in private chat by Admins
@@ -241,6 +246,37 @@ namespace TeleBreadService
                     //botClient.SendTextMessageAsync(e.Message.Chat, "[inline user](tg://user?id=1248677935) this is a test", ParseMode.MarkdownV2);
                     Purgestone ps = new Purgestone(e.Message.From.Id, config);
                     ps.listBadges(botClient, e, listeners);
+                    return;
+                }
+
+                if (messageText != null && messageText.ToLower().Contains("/silence"))
+                {
+                    string replaceString = e.Message.Text.Replace("/silence ", "");
+                    
+                    string outString = "";
+                    foreach (var letter in replaceString)
+                    {
+                        if (letter == ' ')
+                        {
+                            outString += ' ';
+                        } else if (Char.IsPunctuation(letter))
+                        {
+                            outString += letter;
+                        }
+                        else if (Char.IsUpper(letter))
+                        {
+                            outString += 'M';
+                        }
+                        else
+                        {
+                            outString += 'm';
+                        }
+                    }
+
+                    string name = cf.GetFirstName(e.Message.From.Id);
+                    botClient.DeleteMessageAsync(e.Message.Chat.Id, e.Message.MessageId);
+                    botClient.SendTextMessageAsync(e.Message.Chat.Id,
+                        $"{name} tried to speak, but all that came out was \"{outString}\"");
                     return;
                 }
 

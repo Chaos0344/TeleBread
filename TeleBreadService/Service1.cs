@@ -23,7 +23,8 @@ namespace TeleBreadService
             InitializeComponent();
         }
         //private static string _local = "/Users/blakeroetzel/Documents/Dev/TeleBreadService/.local/";
-        private string _local = "C:/dev/TeleBread/.local/";
+        private static string _local = "/Users/blake/RiderProjects/TeleBread/.local/";
+        //private string _local = "C:/dev/TeleBread/.local/";
 
         private static readonly Dictionary<string, string> _config = new Dictionary<string, string>();
       
@@ -36,7 +37,6 @@ namespace TeleBreadService
         private List<ChatListener> _listeners = new List<ChatListener>();
         private List<Poll> _polls = new List<Poll>();
         private List<Trade> _trades = new List<Trade>();
-        private List<Purgestone> _purgestones = new List<Purgestone>();
         
 
         /// <summary>
@@ -84,7 +84,7 @@ namespace TeleBreadService
                 {
                     if (listener.target == update.CallbackQuery.From.Id && listener.type == "Callback")
                     {
-                        _ = new Callbacks(botClient, update, _config, listener, _listeners, _trades, _purgestones);
+                        _ = new Callbacks(botClient, update, _config, listener, _listeners, _trades);
                         return;
                     }
                 }
@@ -118,7 +118,7 @@ namespace TeleBreadService
 
             if (update.Message!.Type == MessageType.Text)
             {
-                _ = new RunCommand(botClient, update, _config, _predictionsList, _listeners, _polls, _trades, _purgestones);
+                _ = new RunCommand(botClient, update, _config, _predictionsList, _listeners, _polls, _trades);
             }
         }
 
