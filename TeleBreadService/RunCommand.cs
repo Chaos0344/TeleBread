@@ -210,7 +210,7 @@ namespace TeleBreadService
 
             if (messageText != null && messageText.ToLower().Contains("420"))
             {
-                botClient.SendTextMessageAsync(e.Message.From.Id, "Blaze it!", replyToMessageId: e.Message.MessageId);
+                botClient.SendTextMessageAsync(e.Message.Chat.Id, "Blaze it!", replyToMessageId: e.Message.MessageId);
             }
 
             // Can be used in private chat by Admins
