@@ -13,9 +13,9 @@ namespace TeleBreadService.General
         public string queryWow()
         {
             SqlConnection conn = new SqlConnection("DSN=acore");
-            SqlCommand comm = new SqlCommand("SELECT name, online FROM characters where online = 1");
-            
-            Dictionary<string, int> output = new Dictionary<string, int>();
+            SqlCommand comm = new SqlCommand("select a.username, b.name, b.level from acore_auth.account a join acore_characters.characters b on a.id = b.account WHERE b.online = 1");
+
+            string names = "";
 
             conn.Open();
             try
@@ -24,7 +24,9 @@ namespace TeleBreadService.General
                 {
                     while (reader.Read())
                     {
-                        output[reader.GetValue(0).ToString()] = Int32.Parse(reader.GetValue(1).ToString());
+                        names += ("\n"+reader.GetValue(1).ToString() + " - " + reader.GetValue(0) + " = " + reader.GetValue(2).ToString());
+                        
+                        //output[reader.GetValue(0).ToString()] = Int32.Parse(reader.GetValue(1).ToString());
                     }
                 }
             }
@@ -34,17 +36,13 @@ namespace TeleBreadService.General
             }
 
             string outText = "";
-            if (output.Count == 0)
+            if (names.Length == 0)
             {
                 outText = "There are no users online.";
             }
             else
             {
-                outText = "Online Users:";
-                foreach (var item in output)
-                {
-                    outText += $"\n{item.Key}";
-                }
+                outText = "Online Users:\n"+names;
             }
 
             return outText;

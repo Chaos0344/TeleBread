@@ -328,6 +328,12 @@ namespace TeleBreadService
             // Can be used in Private Chats by anyone
             if (cf.GetPrivateChat(userId) == chatId)
             {
+                if (messageText != null && messageText.ToLower().Contains("/wow"))
+                {
+                    var wowtext = cf.queryWow();
+                    botClient.SendTextMessageAsync(e.Message.Chat.Id, wowtext);
+                }
+                
                 if (messageText != null && messageText.ToLower().Contains("/trade"))
                 {
                     // TODO Check for existing trade and delete it.
@@ -343,6 +349,12 @@ namespace TeleBreadService
                     {
                         c.Inventory(botClient, e);
                         return;
+                    }
+                    
+                    if (messageText != null && messageText.ToLower().Contains("/wow"))
+                    {
+                        var wowtext = cf.queryWow();
+                        botClient.SendTextMessageAsync(e.Message.Chat.Id, wowtext);
                     }
 
                     if (messageText != null && messageText.ToLower().Contains("/lick"))

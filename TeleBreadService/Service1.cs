@@ -19,6 +19,7 @@ namespace TeleBreadService
     public partial class Service1 : ServiceBase
     {
         public Service1()
+        
         {
             InitializeComponent();
         }
