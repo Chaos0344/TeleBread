@@ -236,12 +236,9 @@ namespace TeleBreadService
                 }
                 if (messageText != null && messageText.ToLower().Contains("/test"))
                 {
-                    //_ = new Payroll(botClient, config);
-                    //cf.AddToInventory("Orb", 1, e.Message.From.Id);
-                    //botClient.SendTextMessageAsync(e.Message.Chat, "[inline user](tg://user?id=1248677935) this is a test", ParseMode.MarkdownV2);
-                    Purgestone ps = new Purgestone(e.Message.From.Id, config);
-                    ps.listBadges(botClient, e, listeners);
-                    return;
+                    // Check wow Online
+                    string wowText = cf.queryWow();
+                    botClient.SendTextMessageAsync(e.Message.Chat.Id, wowText);
                 }
 
                 if (messageText != null && messageText.ToLower() == "/odds")

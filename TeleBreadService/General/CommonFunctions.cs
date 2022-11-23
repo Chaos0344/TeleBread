@@ -9,6 +9,46 @@ namespace TeleBreadService.General
     public class CommonFunctions
     {
         private Dictionary<string, string> Config { get; set; }
+        
+        public string queryWow()
+        {
+            SqlConnection conn = new SqlConnection("server=10.0.20.53;uid=acore;pass=acore;database=acore_characters");
+            SqlCommand comm = new SqlCommand("SELECT name, online FROM characters where online = 1");
+            
+            Dictionary<string, int> output = new Dictionary<string, int>();
+
+            conn.Open();
+            try
+            {
+                using (SqlDataReader reader = comm.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        output[reader.GetValue(0).ToString()] = Int32.Parse(reader.GetValue(1).ToString());
+                    }
+                }
+            }
+            catch (Exception z)
+            {
+                new Service1().WriteToFile(z.ToString());
+            }
+
+            string outText = "";
+            if (output.Count == 0)
+            {
+                outText = "There are no users online.";
+            }
+            else
+            {
+                outText = "Online Users:";
+                foreach (var item in output)
+                {
+                    outText += $"\n{item.Key}";
+                }
+            }
+
+            return outText;
+        }
 
         /// <summary>
         /// Runs a query against the database referenced in the passed config dictionary
