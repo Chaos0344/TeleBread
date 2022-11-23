@@ -1,3 +1,10 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=9687A2B5_002D1A79_002D43D7_002D85C1_002D0A2AA2174C93_002Fd_003AGeneral_002Ff_003ABread_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=9687A2B5_002D1A79_002D43D7_002D85C1_002D0A2AA2174C93_002Fd_003AItems_002Ff_003AUseItem_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=9687A2B5_002D1A79_002D43D7_002D85C1_002D0A2AA2174C93_002Fd_003AObjects_002Ff_003APurgestone_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=9687A2B5_002D1A79_002D43D7_002D85C1_002D0A2AA2174C93_002Ff_003ACallbacks_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=9687A2B5_002D1A79_002D43D7_002D85C1_002D0A2AA2174C93_002Ff_003ACommands_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=9687A2B5_002D1A79_002D43D7_002D85C1_002D0A2AA2174C93_002Ff_003ARunCommand_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=9687A2B5_002D1A79_002D43D7_002D85C1_002D0A2AA2174C93_002Ff_003AService1_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/Highlighting/SweaWarningsMode/@EntryValue">ShowAndRun</s:String>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=telebread/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>

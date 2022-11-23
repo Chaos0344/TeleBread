@@ -12,7 +12,7 @@ namespace TeleBreadService.General
         
         public string queryWow()
         {
-            SqlConnection conn = new SqlConnection("server=10.0.20.53;uid=acore;pass=acore;database=acore_characters");
+            SqlConnection conn = new SqlConnection("DSN=acore");
             SqlCommand comm = new SqlCommand("SELECT name, online FROM characters where online = 1");
             
             Dictionary<string, int> output = new Dictionary<string, int>();
