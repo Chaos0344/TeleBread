@@ -69,6 +69,13 @@ namespace TeleBreadService.Items
             botClient.SendTextMessageAsync(e.Message.Chat.Id, $"You aren't holding any {item}");
         }
 
+        public async void silence(Update e, TelegramBotClient botClient, List<ChatListener> listeners,
+            Dictionary<string, string> config)
+        {
+            var UserID = e.Message.From.Id;
+            // TODO: Finish ring of silencing
+        }
+
         public async void Snap(Update e)
         {
             var chatId = e.Message.Chat.Id;

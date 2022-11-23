@@ -24,7 +24,7 @@ namespace TeleBreadService
         private CommonFunctions cf { get; set; }
 
         public Callbacks(ITelegramBotClient bC, Update u, Dictionary<string, string> c, ChatListener listener,
-            List<ChatListener> listeners, List<Trade> trades, List<Purgestone> purgestones)
+            List<ChatListener> listeners, List<Trade> trades)
         {
             config = c;
             botClient = bC;
@@ -35,6 +35,7 @@ namespace TeleBreadService
             var delChat = long.Parse(listSplit[2]);
             cf = new General.CommonFunctions(config);
             delMsg(delChat, oldMsg);
+            
             switch (st)
             {
                 case "Shop":
@@ -56,7 +57,10 @@ namespace TeleBreadService
                     Trade4(listener, listeners, trades);
                     break;
                 case "Purgestone":
-                    Purgestone(listener, listeners, purgestones);
+                    Purgestone(listener, listeners);
+                    break;
+                case "Ring":
+                    Ring(listener, listeners);
                     break;
             }
         }
@@ -371,7 +375,7 @@ namespace TeleBreadService
             }
         }
 
-        public void Purgestone(ChatListener listener, List<ChatListener> listeners, List<Purgestone> purgestones)
+        public void Purgestone(ChatListener listener, List<ChatListener> listeners)
         {
             var badge = e.CallbackQuery.Data;
             var groupChat = cf.GetGroupChat(listener.target);
@@ -379,6 +383,11 @@ namespace TeleBreadService
             botClient.SendTextMessageAsync(groupChat,
                 $"The Purgestone lets off an ominous glow as the burden of \"{badge}\" is lifted from {cf.GetFirstName(listener.target)}.");
             listeners.Remove(listener);
+        }
+
+        public void Ring(ChatListener listener, List<ChatListener> listeners)
+        {
+            
         }
     }
 }

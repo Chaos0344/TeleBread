@@ -111,7 +111,7 @@ namespace TeleBreadService
         public async void Boobs(ITelegramBotClient botClient, Update e)
         {
             await botClient.SendTextMessageAsync(chatId: e.Message.Chat, text: "Lol nice",
-                    disableNotification: true);
+                    disableNotification: true, replyToMessageId:e.Message.MessageId);
         }
 
         public async void Lick(ITelegramBotClient botClient, Update e)
