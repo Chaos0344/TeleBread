@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Odbc;
 using System.Data.SqlClient;
 using System.Runtime.Remoting.Messaging;
 
@@ -12,19 +13,19 @@ namespace TeleBreadService.General
         
         public string queryWow()
         {
-            SqlConnection conn = new SqlConnection("DSN=acore");
-            SqlCommand comm = new SqlCommand("select a.username, b.name, b.level from acore_auth.account a join acore_characters.characters b on a.id = b.account WHERE b.online = 1");
+            OdbcConnection conn = new OdbcConnection("DSN=acore");
+            OdbcCommand comm = new OdbcCommand("select a.username, b.name, b.level from acore_auth.account a join acore_characters.characters b on a.id = b.account WHERE b.online = 1", conn);
 
             string names = "";
 
             conn.Open();
             try
             {
-                using (SqlDataReader reader = comm.ExecuteReader())
+                using (OdbcDataReader reader = comm.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        names += ("\n"+reader.GetValue(1).ToString() + " - " + reader.GetValue(0) + " = " + reader.GetValue(2).ToString());
+                        names += ("\n"+reader.GetValue(1).ToString() + " - " + reader.GetValue(0) + " - " + reader.GetValue(2).ToString());
                         
                         //output[reader.GetValue(0).ToString()] = Int32.Parse(reader.GetValue(1).ToString());
                     }
@@ -42,7 +43,7 @@ namespace TeleBreadService.General
             }
             else
             {
-                outText = "Online Users:\n"+names;
+                outText = "Online Users:"+names;
             }
 
             return outText;
