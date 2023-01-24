@@ -53,7 +53,7 @@ namespace TeleBreadService.AI
                     prompt = query,
                     max_tokens = 100,
                     temperature = .9,
-                    top_p = 1,
+                    top_p = .1,
                     n = 1,
                     stream = false
                 };
@@ -76,7 +76,7 @@ namespace TeleBreadService.AI
         public string prompt { get; set; }
         public int max_tokens { get; set; }
         public double temperature { get; set; }
-        public int top_p { get; set; }
+        public double top_p { get; set; }
         public int n { get; set; }
         public bool stream { get; set; }
     }
