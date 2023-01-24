@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using TeleBreadService.AI;
 using TeleBreadService.General;
 using TeleBreadService.Items;
 using TeleBreadService.Objects;
@@ -228,6 +229,7 @@ namespace TeleBreadService
                     c.Resolve(botClient, e);
                     return;
                 }
+
             }
 
             // Can be used in group chat by Admins
@@ -239,6 +241,7 @@ namespace TeleBreadService
                     c.Maintenance(botClient, e);
                     return;
                 }
+                
                 if (messageText != null && messageText.ToLower().Contains("/test"))
                 {
                     // Check wow Online
@@ -310,6 +313,8 @@ namespace TeleBreadService
                 {
                     foreach (var ent in e.Message.Entities)
                     {
+                        Console.WriteLine(e.Message.Text);
+                        
                         if (ent.Type == MessageEntityType.BotCommand)
                         {
                             botClient.SendTextMessageAsync(chatId, "TeleBread is currently under maintenance. " +
@@ -348,6 +353,18 @@ namespace TeleBreadService
                     if(messageText != null && messageText.ToLower().Contains("/inventory"))
                     {
                         c.Inventory(botClient, e);
+                        return;
+                    }
+                    
+                    if (messageText != null && messageText.ToLower().Contains("/query"))
+                    {
+                        new OpenAI(botClient, config, messageText.Replace("/query ", ""), e, "Smart");
+                        return;
+                    }
+                    
+                    if (messageText != null && messageText.ToLower().Contains("/askathing"))
+                    {
+                        new OpenAI(botClient, config, messageText.Replace("/askathing ", ""), e, "Dumb");
                         return;
                     }
                     
