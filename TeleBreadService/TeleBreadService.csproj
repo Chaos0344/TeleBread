@@ -75,6 +75,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AI\ImageGen.cs" />
     <Compile Include="AI\OpenAI.cs" />
     <Compile Include="AI\Preston.cs" />
     <Compile Include="Callbacks.cs" />

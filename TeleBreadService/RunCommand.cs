@@ -223,6 +223,12 @@ namespace TeleBreadService
                     c.Say(botClient, e);
                     return;
                 }
+                
+                if (messageText != null && messageText.ToLower().Contains("/imogen"))
+                {
+                    new ImageGen(botClient, config, messageText.Replace("/imogen ", ""), e);
+                    return;
+                }
 
                 if (messageText != null && messageText.ToLower().Contains("/resolve"))
                 {
@@ -241,7 +247,7 @@ namespace TeleBreadService
                     c.Maintenance(botClient, e);
                     return;
                 }
-                
+
                 if (messageText != null && messageText.ToLower().Contains("/test"))
                 {
                     // Check wow Online
@@ -353,6 +359,12 @@ namespace TeleBreadService
                     if(messageText != null && messageText.ToLower().Contains("/inventory"))
                     {
                         c.Inventory(botClient, e);
+                        return;
+                    }
+                    
+                    if (messageText != null && messageText.ToLower().Contains("/imogen"))
+                    {
+                        new ImageGen(botClient, config, messageText.Replace("/imogen ", ""), e);
                         return;
                     }
                     
