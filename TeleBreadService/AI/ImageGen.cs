@@ -30,7 +30,7 @@ namespace TeleBreadService.AI
             }
             else if (query.ToLower().Contains("man") || query.ToLower().Contains("woman") || query.ToLower().Contains("boy") || query.ToLower().Contains("girl"))
             {
-                model = "realisticVisionV12-v12,";
+                model = "realisticVisionV12_v12,";
             }
             else
             {

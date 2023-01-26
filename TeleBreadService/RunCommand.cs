@@ -364,7 +364,7 @@ namespace TeleBreadService
                     
                     if (messageText != null && messageText.ToLower().Contains("/imogen"))
                     {
-                        new ImageGen(botClient, config, messageText.Replace("/imogen ", ""), e);
+                        new ImageGen(botClient, config, messageText.ToLower().Replace("/imogen ", ""), e);
                         return;
                     }
                     
