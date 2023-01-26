@@ -344,7 +344,13 @@ namespace TeleBreadService
                     var wowtext = cf.queryWow();
                     botClient.SendTextMessageAsync(e.Message.Chat.Id, wowtext);
                 }
-                
+
+                if (messageText != null && messageText.ToLower().Contains("/imogen"))
+                {
+                    new ImageGen(botClient, config, messageText.ToLower().Replace("/imogen ", ""), e);
+                    return;
+                }
+
                 if (messageText != null && messageText.ToLower().Contains("/trade"))
                 {
                     // TODO Check for existing trade and delete it.
