@@ -25,31 +25,6 @@
 /Users/blakeroetzel/Library/Mobile Documents/com~apple~CloudDocs/Dev/TeleBread/TeleBreadService/obj/Release/TeleBreadService.csproj.CopyComplete
 /Users/blakeroetzel/Library/Mobile Documents/com~apple~CloudDocs/Dev/TeleBread/TeleBreadService/obj/Release/TeleBreadService.exe
 /Users/blakeroetzel/Library/Mobile Documents/com~apple~CloudDocs/Dev/TeleBread/TeleBreadService/obj/Release/TeleBreadService.pdb
-C:/dev/TeleBread/TeleBreadService/bin/Release/TeleBreadService.exe.config
-C:/dev/TeleBread/TeleBreadService/bin/Release/TeleBreadService.exe
-C:/dev/TeleBread/TeleBreadService/bin/Release/TeleBreadService.pdb
-C:/dev/TeleBread/TeleBreadService/bin/Release/JetBrains.Annotations.dll
-C:/dev/TeleBread/TeleBreadService/bin/Release/Newtonsoft.Json.dll
-C:/dev/TeleBread/TeleBreadService/bin/Release/System.Runtime.CompilerServices.Unsafe.dll
-C:/dev/TeleBread/TeleBreadService/bin/Release/System.Threading.Channels.dll
-C:/dev/TeleBread/TeleBreadService/bin/Release/System.Threading.Tasks.Extensions.dll
-C:/dev/TeleBread/TeleBreadService/bin/Release/Telegram.Bot.dll
-C:/dev/TeleBread/TeleBreadService/bin/Release/Telegram.Bot.Extensions.Polling.dll
-C:/dev/TeleBread/TeleBreadService/bin/Release/JetBrains.Annotations.xml
-C:/dev/TeleBread/TeleBreadService/bin/Release/Newtonsoft.Json.xml
-C:/dev/TeleBread/TeleBreadService/bin/Release/System.Runtime.CompilerServices.Unsafe.xml
-C:/dev/TeleBread/TeleBreadService/bin/Release/System.Threading.Channels.xml
-C:/dev/TeleBread/TeleBreadService/bin/Release/System.Threading.Tasks.Extensions.xml
-C:/dev/TeleBread/TeleBreadService/bin/Release/Telegram.Bot.pdb
-C:/dev/TeleBread/TeleBreadService/bin/Release/Telegram.Bot.xml
-C:/dev/TeleBread/TeleBreadService/bin/Release/Telegram.Bot.Extensions.Polling.pdb
-C:/dev/TeleBread/TeleBreadService/bin/Release/Telegram.Bot.Extensions.Polling.xml
-C:/dev/TeleBread/TeleBreadService/obj/Release/TeleBreadService.ProjectInstaller.resources
-C:/dev/TeleBread/TeleBreadService/obj/Release/TeleBreadService.csproj.GenerateResource.cache
-C:/dev/TeleBread/TeleBreadService/obj/Release/TeleBreadService.csproj.CoreCompileInputs.cache
-C:/dev/TeleBread/TeleBreadService/obj/Release/TeleBreadService.csproj.CopyComplete
-C:/dev/TeleBread/TeleBreadService/obj/Release/TeleBreadService.exe
-C:/dev/TeleBread/TeleBreadService/obj/Release/TeleBreadService.pdb
 /Users/blakeroetzel/Library/Mobile Documents/com~apple~CloudDocs/Dev/TeleBread/TeleBreadService/bin/Release/Json.Net.dll
 C:\dev\latestTeleBread\TeleBread\TeleBreadService\bin\Release\TeleBreadService.exe.config
 C:\dev\latestTeleBread\TeleBread\TeleBreadService\bin\Release\TeleBreadService.exe
@@ -78,3 +53,30 @@ C:\dev\latestTeleBread\TeleBread\TeleBreadService\obj\Release\TeleBreadService.c
 C:\dev\latestTeleBread\TeleBread\TeleBreadService\obj\Release\TeleBreadService.csproj.CopyComplete
 C:\dev\latestTeleBread\TeleBread\TeleBreadService\obj\Release\TeleBreadService.exe
 C:\dev\latestTeleBread\TeleBread\TeleBreadService\obj\Release\TeleBreadService.pdb
+C:\Dev\TeleBread\TeleBreadService\bin\Release\TeleBreadService.exe.config
+C:\Dev\TeleBread\TeleBreadService\bin\Release\TeleBreadService.exe
+C:\Dev\TeleBread\TeleBreadService\bin\Release\TeleBreadService.pdb
+C:\Dev\TeleBread\TeleBreadService\bin\Release\JetBrains.Annotations.dll
+C:\Dev\TeleBread\TeleBreadService\bin\Release\Json.Net.dll
+C:\Dev\TeleBread\TeleBreadService\bin\Release\Newtonsoft.Json.dll
+C:\Dev\TeleBread\TeleBreadService\bin\Release\System.Runtime.CompilerServices.Unsafe.dll
+C:\Dev\TeleBread\TeleBreadService\bin\Release\System.Threading.Channels.dll
+C:\Dev\TeleBread\TeleBreadService\bin\Release\System.Threading.Tasks.Extensions.dll
+C:\Dev\TeleBread\TeleBreadService\bin\Release\Telegram.Bot.dll
+C:\Dev\TeleBread\TeleBreadService\bin\Release\Telegram.Bot.Extensions.Polling.dll
+C:\Dev\TeleBread\TeleBreadService\bin\Release\JetBrains.Annotations.xml
+C:\Dev\TeleBread\TeleBreadService\bin\Release\Newtonsoft.Json.xml
+C:\Dev\TeleBread\TeleBreadService\bin\Release\System.Runtime.CompilerServices.Unsafe.xml
+C:\Dev\TeleBread\TeleBreadService\bin\Release\System.Threading.Channels.xml
+C:\Dev\TeleBread\TeleBreadService\bin\Release\System.Threading.Tasks.Extensions.xml
+C:\Dev\TeleBread\TeleBreadService\bin\Release\Telegram.Bot.pdb
+C:\Dev\TeleBread\TeleBreadService\bin\Release\Telegram.Bot.xml
+C:\Dev\TeleBread\TeleBreadService\bin\Release\Telegram.Bot.Extensions.Polling.pdb
+C:\Dev\TeleBread\TeleBreadService\bin\Release\Telegram.Bot.Extensions.Polling.xml
+C:\Dev\TeleBread\TeleBreadService\obj\Release\TeleBreadService.csprojAssemblyReference.cache
+C:\Dev\TeleBread\TeleBreadService\obj\Release\TeleBreadService.ProjectInstaller.resources
+C:\Dev\TeleBread\TeleBreadService\obj\Release\TeleBreadService.csproj.GenerateResource.cache
+C:\Dev\TeleBread\TeleBreadService\obj\Release\TeleBreadService.csproj.CoreCompileInputs.cache
+C:\Dev\TeleBread\TeleBreadService\obj\Release\TeleBreadService.csproj.CopyComplete
+C:\Dev\TeleBread\TeleBreadService\obj\Release\TeleBreadService.exe
+C:\Dev\TeleBread\TeleBreadService\obj\Release\TeleBreadService.pdb
