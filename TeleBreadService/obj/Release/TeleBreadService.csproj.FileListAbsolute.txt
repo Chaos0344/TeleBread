@@ -73,10 +73,10 @@ C:\Dev\TeleBread\TeleBreadService\bin\Release\Telegram.Bot.pdb
 C:\Dev\TeleBread\TeleBreadService\bin\Release\Telegram.Bot.xml
 C:\Dev\TeleBread\TeleBreadService\bin\Release\Telegram.Bot.Extensions.Polling.pdb
 C:\Dev\TeleBread\TeleBreadService\bin\Release\Telegram.Bot.Extensions.Polling.xml
-C:\Dev\TeleBread\TeleBreadService\obj\Release\TeleBreadService.csprojAssemblyReference.cache
 C:\Dev\TeleBread\TeleBreadService\obj\Release\TeleBreadService.ProjectInstaller.resources
 C:\Dev\TeleBread\TeleBreadService\obj\Release\TeleBreadService.csproj.GenerateResource.cache
 C:\Dev\TeleBread\TeleBreadService\obj\Release\TeleBreadService.csproj.CoreCompileInputs.cache
 C:\Dev\TeleBread\TeleBreadService\obj\Release\TeleBreadService.csproj.CopyComplete
 C:\Dev\TeleBread\TeleBreadService\obj\Release\TeleBreadService.exe
 C:\Dev\TeleBread\TeleBreadService\obj\Release\TeleBreadService.pdb
+C:\dev\TeleBread\TeleBreadService\obj\Release\TeleBreadService.csproj.AssemblyReference.cache

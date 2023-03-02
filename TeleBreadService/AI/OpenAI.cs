@@ -91,7 +91,7 @@ namespace TeleBreadService.AI
             }
             Console.WriteLine(result.Content.ReadAsStringAsync().Result);
             Console.WriteLine(outtext);
-            botClient.SendTextMessageAsync(update.Message.Chat.Id, outtext);
+            botClient.SendTextMessageAsync(update.Message.Chat.Id, outtext, replyToMessageId:update.Message.MessageId);
         }
     }
 
