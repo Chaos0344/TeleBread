@@ -374,6 +374,7 @@ namespace TeleBreadService
                         return;
                     }
                     
+                    
                     if (messageText != null && messageText.ToLower().Contains("/query"))
                     {
                         new OpenAI(botClient, config, messageText.Replace("/query ", ""), e, "Smart");
@@ -468,7 +469,7 @@ namespace TeleBreadService
             }
 
             // Add to Timesheet
-            if (cf.UserInDatabase(userId))
+            if (cf.UserInDatabase(userId) && cf.GetGroupChat(userId) == e.Message.Chat.Id)
             {
                 int msgs = cf.GetTimesheet(userId, chatId);
                 msgs += 1;

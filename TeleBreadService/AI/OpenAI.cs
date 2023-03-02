@@ -25,45 +25,70 @@ namespace TeleBreadService.AI
             config = c;
 
             string apiKey = config["openAIAPI"];
+            string uriString = "";
 
-            var client = new HttpClient();
-            client.BaseAddress = new Uri("https://api.openai.com/v1/completions");
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            string sObject = "";
 
-            var jsonData = new jsonThing();
-            
+
             if (SmartOrDumb == "Smart"){
-                jsonData = new jsonThing()
+                uriString = "https://api.openai.com/v1/chat/completions";
+                var jsonData = new jsonThing2()
                 {
-                    model = "text-davinci-003",
-                    prompt = query,
-                    max_tokens = 100,
+
+                    model = "gpt-3.5-turbo",
+                    messages = new List<Dictionary<string, string>>(){
+                        new Dictionary<string, string>() {
+                            { "role", "system" },
+                            {"content", "You are TelebreadBot, a helpful and sassy assistant."}
+                        },
+                        new Dictionary<string, string>() {
+                            { "role", "user" },
+                            {"content", query }
+                        }
+                    },
+                    max_tokens = 300,
                     temperature = .9,
                     top_p = 1,
                     n = 1,
                     stream = false
                 };
+                sObject = JsonConvert.SerializeObject(jsonData);
             }
             else if(SmartOrDumb == "Dumb")
             {
-                jsonData = new jsonThing()
+                uriString = "https://api.openai.com/v1/completions";
+                var jsonData = new jsonThing()
                 {
+
                     model = "text-ada-001",
                     prompt = query,
-                    max_tokens = 100,
+                    max_tokens = 300,
                     temperature = .9,
                     top_p = .1,
                     n = 1,
                     stream = false
                 };
+                sObject = JsonConvert.SerializeObject(jsonData);
             }
-                    
 
-            var result = client.PostAsync("", new StringContent(JsonConvert.SerializeObject(jsonData), System.Text.Encoding.UTF8, "application/json")).Result;
+            var client = new HttpClient();
+            client.BaseAddress = new Uri(uriString);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+
+            var result = client.PostAsync("", new StringContent(sObject, System.Text.Encoding.UTF8, "application/json")).Result;
             JObject joResponse = JObject.Parse(result.Content.ReadAsStringAsync().Result);
             JObject joArray = (JObject) joResponse["choices"][0];
-            var outtext = joArray["text"].ToString();
+            string outtext = "";
+            if (SmartOrDumb == "Smart")
+            {
+                outtext = joArray["message"]["content"].ToString();
+            }
+            else
+            {
+                outtext = joArray["text"].ToString();
+            }
             Console.WriteLine(result.Content.ReadAsStringAsync().Result);
             Console.WriteLine(outtext);
             botClient.SendTextMessageAsync(update.Message.Chat.Id, outtext);
@@ -74,6 +99,17 @@ namespace TeleBreadService.AI
     {
         public string model { get; set; }
         public string prompt { get; set; }
+        public int max_tokens { get; set; }
+        public double temperature { get; set; }
+        public double top_p { get; set; }
+        public int n { get; set; }
+        public bool stream { get; set; }
+    }
+
+    class jsonThing2
+    {
+        public string model { get; set; }
+        public List<Dictionary<string,string>> messages { get; set; }
         public int max_tokens { get; set; }
         public double temperature { get; set; }
         public double top_p { get; set; }
