@@ -28,20 +28,21 @@ namespace TeleBreadService.AI
             {
                 model = "wd-v1-3-full,";
             }
-            else if (query.ToLower().Contains("man") || query.ToLower().Contains("woman") || query.ToLower().Contains("boy") || query.ToLower().Contains("girl"))
-            {
-                model = "realisticVisionV12_v12,";
-            }
+            //else if (query.ToLower().Contains("man") || query.ToLower().Contains("woman") || query.ToLower().Contains("boy") || query.ToLower().Contains("girl"))
+            //{
+                //model = "realisticVisionV12_v12,";
+            //}
             else
             {
-                model = "stable-diffusion-1.5,";
+                model = "mdjrny-v4,";
+                //model = "stable-diffusion-1.5,";
             }
 
             botClient.SendTextMessageAsync(update.Message.Chat.Id, "Working on it...");
 
             try
             {
-                using TcpClient client = new TcpClient("10.0.10.200", 8992);
+                using TcpClient client = new TcpClient("10.0.20.50", 8992);
                 Byte[] data = System.Text.Encoding.ASCII.GetBytes(model + query);
                 NetworkStream stream = client.GetStream();
                 stream.ReadTimeout = 300000;

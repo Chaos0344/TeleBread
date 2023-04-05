@@ -46,7 +46,7 @@ namespace TeleBreadService.AI
                             {"content", query }
                         }
                     },
-                    max_tokens = 300,
+                    max_tokens = 2000,
                     temperature = .9,
                     top_p = 1,
                     n = 1,

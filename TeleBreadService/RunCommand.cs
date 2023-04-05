@@ -375,11 +375,7 @@ namespace TeleBreadService
                     }
                     
                     
-                    if (messageText != null && messageText.ToLower().Contains("/query"))
-                    {
-                        new OpenAI(botClient, config, messageText.Replace("/query ", ""), e, "Smart");
-                        return;
-                    }
+                    
                     
                     if (messageText != null && messageText.ToLower().Contains("/askathing"))
                     {
@@ -465,6 +461,11 @@ namespace TeleBreadService
             } else if (messageText != null && messageText.ToLower().Contains("/support"))
             {
                 c.Support(botClient, e);
+                return;
+            }
+            if (messageText != null && messageText.ToLower().Contains("/query"))
+            {
+                new OpenAI(botClient, config, messageText.Replace("/query ", ""), e, "Smart");
                 return;
             }
 
