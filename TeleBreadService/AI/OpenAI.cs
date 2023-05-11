@@ -46,7 +46,7 @@ namespace TeleBreadService.AI
                             {"content", query }
                         }
                     },
-                    max_tokens = 2000,
+                    max_tokens = 3500,
                     temperature = .9,
                     top_p = 1,
                     n = 1,
@@ -79,16 +79,24 @@ namespace TeleBreadService.AI
 
             var result = client.PostAsync("", new StringContent(sObject, System.Text.Encoding.UTF8, "application/json")).Result;
             JObject joResponse = JObject.Parse(result.Content.ReadAsStringAsync().Result);
-            JObject joArray = (JObject) joResponse["choices"][0];
             string outtext = "";
-            if (SmartOrDumb == "Smart")
+            try
             {
-                outtext = joArray["message"]["content"].ToString();
-            }
-            else
+                JObject joArray = (JObject)joResponse["choices"][0];
+                if (SmartOrDumb == "Smart")
+                {
+                    outtext = joArray["message"]["content"].ToString();
+                }
+                else
+                {
+                    outtext = joArray["text"].ToString();
+                }
+            } catch
             {
-                outtext = joArray["text"].ToString();
+                botClient.SendTextMessageAsync(update.Message.Chat.Id, "Recieved error from GPT", replyToMessageId: update.Message.MessageId);
+                return;
             }
+            
             Console.WriteLine(result.Content.ReadAsStringAsync().Result);
             Console.WriteLine(outtext);
             botClient.SendTextMessageAsync(update.Message.Chat.Id, outtext, replyToMessageId:update.Message.MessageId);
