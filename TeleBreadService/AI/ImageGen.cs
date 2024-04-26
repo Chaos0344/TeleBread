@@ -42,7 +42,7 @@ namespace TeleBreadService.AI
 
             try
             {
-                using TcpClient client = new TcpClient("10.0.20.50", 8992);
+                using TcpClient client = new TcpClient("10.0.10.93", 8992);
                 Byte[] data = System.Text.Encoding.ASCII.GetBytes(model + query);
                 NetworkStream stream = client.GetStream();
                 stream.ReadTimeout = 300000;
